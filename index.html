@@ -492,35 +492,6 @@ function HeroComposition() {
         <KeyPanelCompact />
       </div>
 
-      <div style={{
-        position: 'absolute', bottom: 0, right: 60, width: 'min(380px, 86%)',
-        background: 'var(--paper)', color: 'var(--ink)',
-        borderRadius: 14, padding: 20,
-        boxShadow: '0 24px 48px -16px rgba(0,0,0,0.4)',
-        display: 'flex', gap: 16, alignItems: 'center',
-      }}>
-        <div style={{
-          width: 76, height: 76, flexShrink: 0,
-          background: 'var(--coral-2)', borderRadius: 10,
-          border: '4px solid var(--coral)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: 'var(--coral)',
-        }}>
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="6" y="10" width="20" height="16" rx="1" />
-            <path d="M10 10 V7 a6 6 0 0 1 12 0 V10" />
-            <circle cx="16" cy="18" r="1.5" fill="currentColor" />
-          </svg>
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: 'Manrope', fontWeight: 700, fontSize: 16, lineHeight: 1.25, letterSpacing: '-0.015em' }}>
-            Riverside University deployed GradeVault in 14 days
-          </div>
-          <a href="#" style={{ color: 'var(--ink)', fontSize: 13, fontWeight: 600, marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
-            Read the case study <span style={{ color: 'var(--coral)' }}>›</span>
-          </a>
-        </div>
-      </div>
     </div>
   );
 }
@@ -763,6 +734,199 @@ function DBView({ mode }) {
       <div style={{ padding: '14px 22px', fontSize: 12, color: 'var(--ink-soft)', fontFamily: 'JetBrains Mono' }}>
         + 23 813 more rows…
       </div>
+    </div>
+  );
+}
+
+function FeaturesSection() {
+  return (
+    <section className="s" id="features" style={{ background: 'var(--paper-2)' }}>
+      <div className="container">
+        <div className="section-head">
+          <span className="eyebrow">§ III — Features</span>
+          <h2>Five <Glitch>primitives</Glitch>. Each operative <em className="serif"><Glitch>during</Glitch></em> an outage.</h2>
+          <p className="sub">
+            Encrypted grade vault, FERPA-grade messaging, continuity layer, broadcast announcements,
+            standards-based LMS interop. No tier upsells.
+          </p>
+        </div>
+
+        <div className="feat-grid">
+          <Feat ix="01" title="E2EE Grade Vault" wide>
+            Professors enter grades in GradeVault; values are encrypted on-device with WebCrypto
+            before they ever reach a server. Only authorized students, instructors, and approved
+            institutional recovery keys can decrypt them. The platform itself is not in the trust set.
+          </Feat>
+          <Feat ix="02" title="Secure faculty–student communication" glyph={<Glyph.Lock />}>
+            FERPA-sensitive messages, grade disputes, feedback, and accommodation notes travel
+            encrypted end-to-end — never stored in plaintext inside the LMS where a breach would expose them.
+          </Feat>
+          <Feat ix="03" title="LMS outage backup" glyph={<Glyph.Signal />}>
+            When Canvas, Blackboard, Moodle, or any LMS goes down, students still reach
+            assignments, due dates, announcements, and emergency instructions through GradeVault.
+          </Feat>
+          <Feat ix="04" title="Announcement & email blast" glyph={<Glyph.Megaphone />}>
+            Instructors and institutions push emergency announcements through GradeVault and
+            trigger simultaneous email blasts to every enrolled student in seconds.
+          </Feat>
+          <Feat ix="05" title="LTI-based integration" glyph={<Glyph.Plug />}>
+            GradeVault rides alongside your existing LMS through standard LTI — no rip-and-replace,
+            no separate logins, no vendor swap. Schools keep the systems they already run.
+          </Feat>
+          <Feat ix="06" title="Recovery without backdoors" glyph={<Glyph.Vault />}>
+            A 3-of-5 Shamir-split recovery key sealed across registrar, IT, and ombuds offices.
+            Three signatures recover a record. One office cannot read it alone.
+          </Feat>
+        </div>
+      </div>
+
+      <style>{`
+        .feat-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
+        .feat-card { grid-column: span 4; padding: 32px 28px 36px; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; position: relative; transition: all 200ms ease; }
+        .feat-card:hover { border-color: var(--ink); transform: translateY(-3px); }
+        .feat-card.wide { grid-column: span 12; padding: 44px 44px 48px; background: var(--ink); color: var(--paper); border-color: var(--ink); }
+        .feat-card.wide .ix { color: var(--coral); }
+        .feat-card.wide h3 { color: var(--paper); max-width: 520px; }
+        .feat-card.wide p { color: rgba(255,255,255,0.72); max-width: 700px; }
+        .feat-card.wide .corner-shape {
+          position: absolute; top: 0; right: 0; width: 240px; height: 100%; pointer-events: none;
+          background:
+            radial-gradient(circle 110px at 80% 30%, var(--coral) 0 100%, transparent 100%),
+            radial-gradient(circle 60px at 60% 70%, rgba(226,63,58,0.5) 0 100%, transparent 100%);
+        }
+        .feat-card .ix { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-soft); letter-spacing: 0.18em; }
+        .feat-card .glyph { width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--coral); margin-bottom: 22px; margin-top: 18px; }
+        .feat-card h3 { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 24px; line-height: 1.15; letter-spacing: -0.02em; margin: 14px 0 10px; }
+        .feat-card.wide h3 { font-size: 40px; line-height: 1.05; letter-spacing: -0.03em; margin: 28px 0 18px; }
+        .feat-card p { font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 0; }
+        @media (max-width: 1000px) { .feat-card { grid-column: span 12; } }
+      `}</style>
+    </section>
+  );
+}
+
+function Feat({ ix, title, children, wide, glyph }) {
+  return (
+    <article className={`feat-card ${wide ? 'wide' : ''}`}>
+      {wide && <div className="corner-shape" />}
+      <div className="ix" style={{ position: 'relative' }}>{ix}</div>
+      {!wide && <div className="glyph">{glyph}</div>}
+      <h3 style={{ position: 'relative' }}>{title}</h3>
+      <p style={{ position: 'relative' }}>{children}</p>
+    </article>
+  );
+}
+
+function IntegrationsSection() {
+  return (
+    <section className="s" id="integrations" style={{ background: 'var(--paper)' }}>
+      <div className="container">
+        <div className="section-head">
+          <span className="eyebrow">§ IV — Integrations</span>
+          <h2>Installed <em className="serif"><Glitch>alongside</Glitch></em> the LMS your institution already uses.</h2>
+          <p className="sub">Standards-based LTI 1.3 connectors. No rip-and-replace.</p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 14, marginBottom: 64 }} className="lms-grid">
+          <LMSCell name="Canvas" status="LTI 1.3 · LIVE" live />
+          <LMSCell name="Blackboard" status="LTI 1.3 · LIVE" live />
+          <LMSCell name="Moodle" status="LTI 1.3 · LIVE" live />
+          <LMSCell name="Brightspace" status="LTI 1.3 · BETA" />
+          <LMSCell name="Schoology" status="LTI 1.3 · BETA" />
+        </div>
+
+        <OutageSimulator />
+      </div>
+
+      <style>{`
+        .lms-cell { padding: 26px 22px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; text-align: center; transition: all 160ms ease; }
+        .lms-cell.live { border-color: var(--ink); }
+        .lms-cell:hover { border-color: var(--coral); transform: translateY(-2px); }
+        .lms-cell .name { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.02em; }
+        .lms-cell .meta { display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; margin-top: 8px; color: var(--ink-soft); }
+        .lms-cell.live .meta { color: var(--ok); }
+        @media (max-width: 1000px) { .lms-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+      `}</style>
+    </section>
+  );
+}
+
+function LMSCell({ name, status, live }) {
+  return (
+    <div className={`lms-cell ${live ? 'live' : ''}`}>
+      <div className="name">{name}</div>
+      <span className="meta">{status}</span>
+    </div>
+  );
+}
+
+function OutageSimulator() {
+  const [down, setDown] = useState(false);
+  return (
+    <div className="card" style={{ overflow: 'hidden' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 24px', borderBottom: '1px solid var(--line)', background: 'var(--paper-2)' }}>
+        <div className="mono" style={{ fontSize: 12, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 600, color: 'var(--ink-soft)' }}>
+          Outage simulator — <span style={{ color: down ? 'var(--coral)' : 'var(--ok)' }}>{down ? 'LMS DOWN' : 'LMS UP'}</span>
+        </div>
+        <button onClick={() => setDown(d => !d)} className="btn btn-ghost" style={{ padding: '10px 18px', fontSize: 13 }}>
+          {down ? 'Restore the LMS' : 'Take the LMS down'}
+        </button>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }} className="hero-grid">
+        <Pane title="Your LMS" status={down ? 'down' : 'up'} bordered>
+          {down ? (
+            <div>
+              <div className="mono" style={{ fontSize: 13, marginBottom: 14, color: 'var(--coral)', fontWeight: 600 }}>HTTP 503 · service unavailable</div>
+              <div style={{ color: 'var(--ink-soft)', fontSize: 14, lineHeight: 1.55 }}>
+                Students can't reach assignments, due dates, announcements, or messages.
+                Faculty can't post grades. Office staff are answering phones.
+              </div>
+            </div>
+          ) : (
+            <div style={{ color: 'var(--ink)', fontSize: 14 }}>
+              <DotLine label="Spring 2026 — CS 240 · Lecture 14 posted" />
+              <DotLine label="Assignment 7 due Friday 11:59 PM" />
+              <DotLine label="Office hours moved to Thursday" />
+            </div>
+          )}
+        </Pane>
+        <Pane title="GradeVault — continuity layer" status="up">
+          <div style={{ color: 'var(--ink)', fontSize: 14 }}>
+            <DotLine label="Mirrored: Assignment 7 · due Fri 11:59 PM" gold />
+            <DotLine label="Mirrored: Lecture 14 PDF (encrypted)" gold />
+            <DotLine label="Emergency channel — instructor reachable" gold />
+            {down && <DotLine label="Email blast queued: 412 students" gold flash />}
+          </div>
+        </Pane>
+      </div>
+    </div>
+  );
+}
+
+function Pane({ title, status, children, bordered }) {
+  return (
+    <div style={{ padding: '32px 32px 36px', borderRight: bordered ? '1px solid var(--line)' : 'none', minHeight: 240, background: 'var(--paper)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20, alignItems: 'baseline' }}>
+        <div style={{ fontFamily: 'Manrope', fontWeight: 700, fontSize: 18, letterSpacing: '-0.015em' }}>{title}</div>
+        <div className="mono" style={{ fontSize: 11, color: status === 'down' ? 'var(--coral)' : 'var(--ok)', fontWeight: 600 }}>
+          ● {status === 'down' ? 'OFFLINE' : 'ONLINE'}
+        </div>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function DotLine({ label, gold, flash }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 12,
+      padding: '11px 0', borderBottom: '1px solid var(--line)',
+      animation: flash ? 'flash 1.4s ease-in-out infinite' : 'none',
+    }}>
+      <span style={{ width: 7, height: 7, background: gold ? 'var(--coral)' : 'var(--ink-soft)', borderRadius: '50%', flexShrink: 0 }} />
+      <span>{label}</span>
+      <style>{`@keyframes flash { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }`}</style>
     </div>
   );
 }
@@ -1016,6 +1180,8 @@ function App() {
       <BreachMarquee />
       <BreachSection />
       <HowSection />
+      <FeaturesSection />
+      <IntegrationsSection />
       <PledgeSection />
       <FAQSection />
       <Footer />
