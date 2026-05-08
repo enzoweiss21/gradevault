@@ -1,0 +1,1267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>GradeVault — End-to-end encrypted academic records</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper:   #ffffff;
+    --paper-2: #f5f1ea;
+    --paper-3: #ebe5d8;
+    --ink:     #0a1226;
+    --ink-soft:#5b6477;
+    --line:    #d9d3c5;
+
+    --navy:    #0a1d3f;
+    --navy-2:  #0e2654;
+    --coral:   #e23f3a;
+    --coral-2: #ffd9d6;
+    --gold:    #d8a541;
+    --ok:      #1c8a5b;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--paper); color: var(--ink); }
+  body {
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  .serif { font-family: 'Instrument Serif', 'Times New Roman', serif; font-weight: 400; letter-spacing: -0.012em; }
+  .mono  { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  a { color: inherit; }
+  button { font-family: inherit; }
+  ::selection { background: var(--coral); color: var(--paper); }
+
+  .container { max-width: 1320px; margin: 0 auto; padding: 0 32px; }
+  .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .eyebrow {
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--coral);
+    letter-spacing: -0.005em;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 28px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px; font-weight: 600;
+    letter-spacing: -0.005em;
+    border: 1.5px solid var(--ink);
+    background: var(--ink); color: var(--paper);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 160ms ease, color 160ms ease, border-color 160ms ease, transform 100ms ease;
+    text-decoration: none;
+  }
+  .btn:hover { background: var(--coral); border-color: var(--coral); color: var(--paper); }
+  .btn:active { transform: translateY(1px); }
+  .btn-ghost { background: transparent; color: var(--ink); }
+  .btn-ghost:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .btn-on-dark { border-color: var(--paper); background: transparent; color: var(--paper); }
+  .btn-on-dark:hover { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+  .btn-coral { background: var(--coral); border-color: var(--coral); color: var(--paper); }
+  .btn-coral:hover { background: var(--ink); border-color: var(--ink); }
+
+  nav.top {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+  }
+  nav.top .row { display: flex; align-items: center; justify-content: space-between; height: 84px; }
+  nav.top .links { display: flex; gap: 36px; font-size: 15px; color: var(--ink); font-weight: 500; }
+  nav.top .links a { text-decoration: none; transition: color 120ms; }
+  nav.top .links a:hover { color: var(--coral); }
+  nav.top .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 26px; font-weight: 800;
+    letter-spacing: -0.035em;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  nav.top .brand .mark {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: var(--ink); color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+  }
+  nav.top .brand .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--coral);
+    margin-left: -2px; align-self: flex-end;
+    transform: translateY(-3px);
+  }
+
+  .hero {
+    background: var(--navy);
+    color: var(--paper);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero h1 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: clamp(48px, 5.6vw, 84px);
+    line-height: 1.02;
+    letter-spacing: -0.038em;
+    margin: 0;
+  }
+  .hero h1 .accent { color: var(--coral); }
+  .hero h1 .strike { position: relative; display: inline-block; }
+  .hero h1 .strike::after {
+    content: ""; position: absolute; left: -2%; right: -2%; top: 54%;
+    height: 0.08em; background: var(--coral); transform: rotate(-3deg);
+  }
+  .hero .lede {
+    max-width: 540px;
+    font-size: 18px;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.78);
+    margin-top: 28px;
+    font-weight: 400;
+  }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
+    background: rgba(255,255,255,0.08);
+    color: var(--paper);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .chip.light {
+    background: var(--paper-2); color: var(--ink-soft);
+    border-color: var(--line);
+  }
+  .chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--coral); }
+
+  .breach-banner {
+    background: var(--coral);
+    padding: 16px 0;
+    overflow: hidden;
+    color: var(--paper);
+    border-top: 1px solid rgba(0,0,0,0.08);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+  .marquee {
+    display: flex; gap: 56px;
+    white-space: nowrap;
+    animation: scroll 60s linear infinite;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .marquee span { display: inline-flex; align-items: center; gap: 16px; }
+  .marquee .star {
+    width: 8px; height: 8px;
+    background: var(--paper);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  section.s {
+    padding: 120px 0;
+    position: relative;
+  }
+  section.s + section.s { border-top: 1px solid var(--line); }
+  .section-head {
+    text-align: center;
+    max-width: 880px;
+    margin: 0 auto 80px;
+  }
+  .section-head .eyebrow { display: block; margin-bottom: 18px; }
+  .section-head h2 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: clamp(40px, 5.4vw, 72px);
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    margin: 0;
+  }
+  .section-head h2 .accent { color: var(--coral); }
+  .section-head h2 .serif { font-style: italic; font-weight: 400; }
+  .section-head p.sub {
+    margin: 22px auto 0;
+    max-width: 640px;
+    font-size: 18px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--paper);
+    overflow: hidden;
+  }
+
+  footer {
+    padding: 96px 0 48px;
+    background: var(--ink); color: var(--paper);
+  }
+  footer .grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; }
+  footer h4 { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--coral); font-weight: 500; margin: 0 0 18px; }
+  footer ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 14px; color: rgba(255,255,255,0.7); }
+  footer ul a { text-decoration: none; }
+  footer ul a:hover { color: var(--coral); }
+  footer .colophon {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 32px; margin-top: 64px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    font-size: 12px; color: rgba(255,255,255,0.5);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+
+  @media (max-width: 1000px) {
+    .container { padding: 0 24px; }
+    nav.top .links { display: none; }
+    .hero-grid { grid-template-columns: 1fr !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+<script type="text/babel">
+const Glyph = {
+  Vault: () => (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.2">
+      <rect x="2" y="3" width="16" height="14" />
+      <circle cx="10" cy="10" r="3.5" />
+      <circle cx="10" cy="10" r="0.8" fill="currentColor" />
+      <line x1="10" y1="6.5" x2="10" y2="4" />
+      <line x1="10" y1="13.5" x2="10" y2="16" />
+      <line x1="6.5" y1="10" x2="4" y2="10" />
+      <line x1="13.5" y1="10" x2="16" y2="10" />
+    </svg>
+  ),
+  Lock: () => (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.2">
+      <rect x="4" y="9" width="12" height="9" />
+      <path d="M6.5 9 V6.5 a3.5 3.5 0 0 1 7 0 V9" />
+      <circle cx="10" cy="13.5" r="0.8" fill="currentColor" />
+    </svg>
+  ),
+  Message: () => (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.2">
+      <rect x="2.5" y="4" width="15" height="11" />
+      <path d="M2.5 4 L10 11 L17.5 4" />
+    </svg>
+  ),
+  Signal: () => (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.2">
+      <path d="M3 13 L7 9 L11 12 L17 5" />
+      <circle cx="3" cy="13" r="0.9" fill="currentColor" stroke="none" />
+      <circle cx="17" cy="5" r="0.9" fill="currentColor" stroke="none" />
+    </svg>
+  ),
+  Megaphone: () => (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.2">
+      <path d="M3 8 L3 12 L8 12 L15 16 L15 4 L8 8 Z" />
+      <line x1="17" y1="9" x2="18.5" y2="9" />
+    </svg>
+  ),
+  Plug: () => (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.2">
+      <path d="M7 2 V6 M13 2 V6" />
+      <rect x="5" y="6" width="10" height="5" />
+      <path d="M10 11 V15" />
+      <rect x="7" y="15" width="6" height="3" />
+    </svg>
+  ),
+  Mark: () => (
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.4">
+      <rect x="2" y="2" width="18" height="18" />
+      <path d="M7 11 L10 14 L15 8" />
+    </svg>
+  ),
+};
+
+const { useState, useEffect, useRef, useMemo } = React;
+
+const CHARS = '0123456789ABCDEF!@#$%^&*<>+=/\\?abcdef'.split('');
+
+window.__glitchPool = window.__glitchPool || new Set();
+
+function extractText(node) {
+  if (node == null || typeof node === 'boolean') return '';
+  if (typeof node === 'string') return node;
+  if (typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(extractText).join('');
+  if (node && typeof node === 'object' && node.props) return extractText(node.props.children);
+  return '';
+}
+
+function Glitch({ children }) {
+  const text = extractText(children) || null;
+  const [scrambled, setScrambled] = useState(null);
+  const [inView, setInView] = useState(false);
+  const ref = useRef(null);
+  const timer = useRef(null);
+  const finalTimer = useRef(null);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    const io = new IntersectionObserver(
+      (entries) => { for (const e of entries) setInView(e.isIntersecting); },
+      { threshold: 0.1 }
+    );
+    io.observe(ref.current);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (text == null || !inView) return;
+    const fire = () => {
+      if (timer.current) clearInterval(timer.current);
+      if (finalTimer.current) clearTimeout(finalTimer.current);
+      let frames = 0;
+      const total = 8 + Math.floor(Math.random() * 4);
+      timer.current = setInterval(() => {
+        frames++;
+        const reveal = frames / total;
+        const next = text.split('').map((c) => {
+          if (c === ' ') return ' ';
+          if (Math.random() < reveal * 0.6) return c;
+          return CHARS[Math.floor(Math.random() * CHARS.length)];
+        }).join('');
+        setScrambled(next);
+        if (frames >= total) {
+          clearInterval(timer.current);
+          finalTimer.current = setTimeout(() => setScrambled(null), 60);
+        }
+      }, 60);
+    };
+    window.__glitchPool.add(fire);
+    return () => {
+      window.__glitchPool.delete(fire);
+      if (timer.current) clearInterval(timer.current);
+      if (finalTimer.current) clearTimeout(finalTimer.current);
+    };
+  }, [text, inView]);
+
+  if (scrambled !== null) {
+    return (
+      <span ref={ref} className="glitch is-glitching" style={{
+        display: 'inline-block', fontFamily: 'JetBrains Mono, monospace',
+        fontStyle: 'normal', letterSpacing: '0.02em',
+      }}>{scrambled}</span>
+    );
+  }
+  return <span ref={ref} style={{ display: 'inline' }}>{children}</span>;
+}
+
+function TopNav() {
+  return (
+    <nav className="top">
+      <div className="container">
+        <div className="row">
+          <a className="brand" href="#">
+            <span className="mark"><Glyph.Mark /></span>
+            <span>GradeVault</span>
+            <span className="dot"></span>
+          </a>
+          <div className="links">
+            <a href="#problem">Why GradeVault</a>
+            <a href="#how">How it works</a>
+            <a href="#features">Features</a>
+            <a href="#integrations">Integrations</a>
+            <a href="#security">Security</a>
+          </div>
+          <a href="#sign" className="btn" style={{ padding: '11px 22px', fontSize: 14 }}>
+            Pledge your school
+          </a>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+function Hero() {
+  return (
+    <section className="hero">
+      <div className="container" style={{ padding: '88px 32px 96px', position: 'relative' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.05fr 1fr', gap: 64, alignItems: 'center' }} className="hero-grid">
+          <div>
+            <h1>
+              Your <Glitch>grades</Glitch> aren't a<br />
+              <span className="strike">database</span>. They're a<br />
+              <span className="accent"><Glitch>vault</Glitch>.</span>
+            </h1>
+
+            <p className="lede">
+              GradeVault is an end-to-end encrypted academic records and LMS continuity layer.
+              It protects grades, secures faculty–student communication, and keeps courses
+              running when the LMS goes <Glitch>dark</Glitch>.
+            </p>
+
+            <div style={{ display: 'flex', gap: 14, marginTop: 36, flexWrap: 'wrap', alignItems: 'center' }}>
+              <a href="#sign" className="btn btn-coral">
+                Pledge your institution →
+              </a>
+              <a href="#how" className="btn btn-on-dark">
+                See how it works
+              </a>
+            </div>
+
+            <div style={{ marginTop: 56, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.14)', display: 'flex', gap: 36, flexWrap: 'wrap' }}>
+              <Pill label="247" sub="institutions pledged" />
+              <Pill label="14" sub="state systems endorsed" />
+              <Pill label="3.2M" sub="students represented" />
+            </div>
+          </div>
+          <HeroComposition />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Pill({ label, sub }) {
+  return (
+    <div>
+      <div style={{ fontFamily: 'Manrope', fontWeight: 800, fontSize: 36, letterSpacing: '-0.03em', lineHeight: 1, color: 'var(--paper)' }}>{label}</div>
+      <div className="mono" style={{ fontSize: 11, marginTop: 8, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>{sub}</div>
+    </div>
+  );
+}
+
+function HeroComposition() {
+  return (
+    <div style={{ position: 'relative', minHeight: 540 }}>
+      <div style={{
+        position: 'absolute', top: 30, right: -20, width: 380, height: 380,
+        background: 'var(--coral)', borderRadius: '50%', opacity: 0.95,
+      }} />
+      <div style={{
+        position: 'absolute', top: 240, right: 220, width: 220, height: 220,
+        background: 'var(--coral)', borderRadius: '50%', opacity: 0.55,
+      }} />
+      <div style={{
+        position: 'absolute', top: 80, right: 280, width: 130, height: 130,
+        background: 'var(--coral)', borderRadius: '50%', opacity: 0.35,
+      }} />
+
+      <div style={{
+        position: 'absolute', top: 60, right: 30, width: 'min(440px, 92%)',
+        borderRadius: 16, overflow: 'hidden',
+        background: 'var(--ink)', color: 'var(--paper)',
+        boxShadow: '0 30px 60px -20px rgba(0,0,0,0.55)',
+        border: '1px solid rgba(255,255,255,0.08)',
+      }}>
+        <KeyPanelCompact />
+      </div>
+
+      <div style={{
+        position: 'absolute', bottom: 0, right: 60, width: 'min(380px, 86%)',
+        background: 'var(--paper)', color: 'var(--ink)',
+        borderRadius: 14, padding: 20,
+        boxShadow: '0 24px 48px -16px rgba(0,0,0,0.4)',
+        display: 'flex', gap: 16, alignItems: 'center',
+      }}>
+        <div style={{
+          width: 76, height: 76, flexShrink: 0,
+          background: 'var(--coral-2)', borderRadius: 10,
+          border: '4px solid var(--coral)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: 'var(--coral)',
+        }}>
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="6" y="10" width="20" height="16" rx="1" />
+            <path d="M10 10 V7 a6 6 0 0 1 12 0 V10" />
+            <circle cx="16" cy="18" r="1.5" fill="currentColor" />
+          </svg>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: 'Manrope', fontWeight: 700, fontSize: 16, lineHeight: 1.25, letterSpacing: '-0.015em' }}>
+            Riverside University deployed GradeVault in 14 days
+          </div>
+          <a href="#" style={{ color: 'var(--ink)', fontSize: 13, fontWeight: 600, marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
+            Read the case study <span style={{ color: 'var(--coral)' }}>›</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KeyPanelCompact() {
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 1500);
+    return () => clearInterval(id);
+  }, []);
+  const fingerprint = useMemo(() => {
+    const hex = '0123456789abcdef';
+    let s = '';
+    for (let i = 0; i < 32; i++) s += hex[Math.floor(Math.random() * 16)];
+    return s.match(/.{1,4}/g).join(' ');
+  }, [tick]);
+
+  return (
+    <>
+      <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#3ddc84', boxShadow: '0 0 12px #3ddc84' }} />
+          <span className="mono" style={{ fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#3ddc84' }}>Session key · live</span>
+        </div>
+        <span className="mono" style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em' }}>X25519 · AES-256-GCM</span>
+      </div>
+      <div style={{ padding: '22px 20px 20px' }}>
+        <div className="mono" style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.16em', marginBottom: 8, textTransform: 'uppercase' }}>Fingerprint</div>
+        <div className="mono" style={{ fontSize: 13, color: '#3ddc84', wordBreak: 'break-all', marginBottom: 22, lineHeight: 1.6 }}>{fingerprint}</div>
+
+        <div className="mono" style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.16em', marginBottom: 10, textTransform: 'uppercase' }}>Key holders</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+          <KeyRow label="student@uni.edu" status="held" />
+          <KeyRow label="prof.lin@uni.edu" status="held" />
+          <KeyRow label="recovery.officer@uni.edu" status="sealed" />
+          <KeyRow label="canvas.lms.platform" status="denied" />
+        </div>
+      </div>
+    </>
+  );
+}
+
+function KeyRow({ label, status }) {
+  const colors = { held: '#3ddc84', sealed: '#d8a541', denied: '#e23f3a' };
+  const txt = { held: 'HELD', sealed: 'SEALED', denied: 'DENIED' };
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5 }}>
+      <span style={{ color: 'rgba(255,255,255,0.85)' }} className="mono">{label}</span>
+      <span style={{ color: colors[status], fontFamily: 'JetBrains Mono', fontSize: 10.5, letterSpacing: '0.12em' }}>● {txt[status]}</span>
+    </div>
+  );
+}
+
+function BreachMarquee() {
+  const items = [
+    'CANVAS BREACH · APRIL 2026',
+    'GRADES LEAKED IN PLAINTEXT',
+    'TRANSCRIPTS · DMs · ACCOMMODATION RECORDS',
+    'NEVER AGAIN',
+    'GRADEVAULT INITIATIVE OPEN FOR SIGNATORIES',
+  ];
+  const all = [...items, ...items, ...items];
+  return (
+    <div className="breach-banner">
+      <div className="marquee">
+        {all.map((t, i) => (
+          <span key={i}><span className="star"></span>{t}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function BreachSection() {
+  return (
+    <section className="s" id="problem" style={{ background: 'var(--paper-2)' }}>
+      <div className="container">
+        <div className="section-head">
+          <span className="eyebrow">§ I — Before we talk crypto…</span>
+          <h2>
+            <Glitch>Plaintext</Glitch> grades were never going to age well.<br />
+            April <span className="accent"><Glitch>only</Glitch></span> made it visible.
+          </h2>
+          <p className="sub">
+            Schools weren't careless. The LMS architecture asks them to trust a single vendor
+            with a complete plaintext copy of every grade, message, and accommodation note ever recorded.
+          </p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }} className="stat-grid">
+          <Stat num="42M" lbl="Student records reportedly exposed across LMS incidents in 24 months." />
+          <Stat num="0" lbl="Major LMS platforms that store grades or messages with end-to-end encryption today." />
+          <Stat num="11d" lbl="Median time a campus LMS spent fully or partially offline during recent breach response." />
+          <Stat num="100%" lbl="Of FERPA-protected information leaks in plaintext when an LMS database is exfiltrated." />
+        </div>
+      </div>
+
+      <style>{`
+        .stat-card { padding: 32px 28px; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; transition: border-color 160ms ease, transform 160ms ease; }
+        .stat-card:hover { border-color: var(--coral); transform: translateY(-2px); }
+        .stat-card .num { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 64px; line-height: 1; letter-spacing: -0.04em; color: var(--ink); }
+        .stat-card .lbl { margin-top: 16px; font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
+        .stat-card .bar { height: 3px; background: var(--coral); width: 32px; margin-top: 22px; border-radius: 2px; }
+        @media (max-width: 1000px) { .stat-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+      `}</style>
+    </section>
+  );
+}
+
+function Stat({ num, lbl }) {
+  return (
+    <div className="stat-card">
+      <div className="num">{num}</div>
+      <div className="bar" />
+      <div className="lbl">{lbl}</div>
+    </div>
+  );
+}
+
+function HowSection() {
+  const [view, setView] = useState('vault');
+  return (
+    <section className="s" id="how" style={{ background: 'var(--paper)' }}>
+      <div className="container">
+        <div className="section-head">
+          <span className="eyebrow">§ II — How it works</span>
+          <h2>What a registrar's <Glitch>database</Glitch> <em className="serif"><Glitch>ought</Glitch></em> to look like.</h2>
+          <p className="sub">
+            Toggle between an industry-standard LMS table and the GradeVault equivalent.
+            What the attacker actually sees during a database breach — same data, two architectures.
+          </p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1.05fr 1fr', gap: 56, alignItems: 'start' }} className="hero-grid">
+          <div>
+            <div style={{ display: 'inline-flex', border: '1px solid var(--line)', borderRadius: 999, padding: 4, background: 'var(--paper)', marginBottom: 22 }}>
+              <Toggle active={view === 'lms'} onClick={() => setView('lms')}>The other guys</Toggle>
+              <Toggle active={view === 'vault'} onClick={() => setView('vault')}>GradeVault</Toggle>
+            </div>
+
+            <div className="card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 22px', borderBottom: '1px solid var(--line)', background: 'var(--paper-2)' }}>
+                <span className="mono" style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink-soft)', fontWeight: 600 }}>
+                  postgres://records / table: course_grades
+                </span>
+                <span className="mono" style={{ fontSize: 11, fontWeight: 600, color: view === 'vault' ? 'var(--ok)' : 'var(--coral)' }}>
+                  ● {view === 'vault' ? 'CIPHERTEXT' : 'PLAINTEXT'}
+                </span>
+              </div>
+              <DBView mode={view} />
+            </div>
+
+            <p className="mono" style={{ marginTop: 14, color: 'var(--ink-soft)', fontSize: 12, letterSpacing: '0.04em' }}>
+              ↪ This is exactly what an attacker exfiltrating the database sees.
+            </p>
+          </div>
+
+          <div>
+            <span className="label">Cryptographic flow</span>
+            <ol style={{ listStyle: 'none', padding: 0, margin: '14px 0 0' }}>
+              <Step n="01" title="Professor enters a grade.">
+                The grade is encrypted in the browser using WebCrypto (AES-256-GCM).
+                The plaintext never leaves the device.
+              </Step>
+              <Step n="02" title="Ciphertext is sealed to a key bundle.">
+                Wrapped to the student's public key, the instructor's, and an institutional
+                recovery key — held in a hardware-isolated vault.
+              </Step>
+              <Step n="03" title="Server stores ciphertext only.">
+                A breach of the GradeVault database leaks bytes that look like
+                <span className="mono" style={{ color: 'var(--coral)' }}> 7c9e…ef02</span> — not transcripts.
+              </Step>
+              <Step n="04" title="Authorized parties decrypt locally.">
+                The student opens their grades. The professor opens their gradebook.
+                Nobody else — including us — can read them.
+              </Step>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Toggle({ active, onClick, children }) {
+  return (
+    <button onClick={onClick} style={{
+      padding: '10px 22px', background: active ? 'var(--ink)' : 'transparent',
+      color: active ? 'var(--paper)' : 'var(--ink-soft)', border: 'none', borderRadius: 999,
+      fontFamily: 'Manrope', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+    }}>{children}</button>
+  );
+}
+
+function Step({ n, title, children }) {
+  return (
+    <li style={{ display: 'grid', gridTemplateColumns: '52px 1fr', gap: 18, padding: '18px 0', borderBottom: '1px solid var(--line)' }}>
+      <div style={{ color: 'var(--coral)', fontFamily: 'JetBrains Mono', fontSize: 13, fontWeight: 600, letterSpacing: '0.06em' }}>{n}</div>
+      <div>
+        <div style={{ fontFamily: 'Manrope', fontWeight: 700, fontSize: 18, marginBottom: 6, letterSpacing: '-0.015em' }}>{title}</div>
+        <div style={{ color: 'var(--ink-soft)', fontSize: 14.5, lineHeight: 1.55 }}>{children}</div>
+      </div>
+    </li>
+  );
+}
+
+function DBView({ mode }) {
+  const rows = [
+    { id: '23814', student: 'A. Park',       course: 'CS 240',   grade: 'A−' },
+    { id: '23815', student: 'M. Okafor',     course: 'CS 240',   grade: 'B+' },
+    { id: '23816', student: 'L. Hernández',  course: 'PHIL 110', grade: 'A'  },
+    { id: '23817', student: 'S. Ito',        course: 'BIO 305',  grade: 'C'  },
+  ];
+  const cipher = (seed) => {
+    let s = ''; const hex = '0123456789abcdef';
+    for (let i = 0; i < 24; i++) s += hex[(seed * (i + 7)) % 16];
+    return s;
+  };
+  return (
+    <div style={{ background: 'var(--paper)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '70px 1fr 1fr 80px', padding: '12px 22px', borderBottom: '1px solid var(--line)' }}>
+        {['ROW', 'STUDENT', 'COURSE', 'GRADE'].map(h => (
+          <div key={h} className="mono" style={{ fontSize: 10, color: 'var(--ink-soft)', letterSpacing: '0.18em', fontWeight: 600 }}>{h}</div>
+        ))}
+      </div>
+      {rows.map((r, i) => (
+        <div key={r.id} style={{ display: 'grid', gridTemplateColumns: '70px 1fr 1fr 80px', alignItems: 'center', padding: '14px 22px', borderBottom: '1px solid var(--line)', fontSize: 13 }}>
+          <span className="mono" style={{ color: 'var(--ink-soft)' }}>{r.id}</span>
+          <span style={{ color: 'var(--ink)', fontFamily: mode === 'lms' ? 'Manrope' : 'JetBrains Mono', fontSize: mode === 'lms' ? 14 : 12, fontWeight: mode === 'lms' ? 500 : 400 }}>
+            {mode === 'lms' ? r.student : cipher(i + 3)}
+          </span>
+          <span style={{ color: 'var(--ink)', fontFamily: mode === 'lms' ? 'Manrope' : 'JetBrains Mono', fontSize: mode === 'lms' ? 14 : 12 }}>
+            {mode === 'lms' ? r.course : cipher(i + 11)}
+          </span>
+          <span style={{ color: mode === 'lms' ? 'var(--ink)' : 'var(--coral)', fontWeight: 600, fontFamily: mode === 'lms' ? 'Manrope' : 'JetBrains Mono', fontSize: mode === 'lms' ? 16 : 12 }}>
+            {mode === 'lms' ? r.grade : cipher(i + 19).slice(0, 6)}
+          </span>
+        </div>
+      ))}
+      <div style={{ padding: '14px 22px', fontSize: 12, color: 'var(--ink-soft)', fontFamily: 'JetBrains Mono' }}>
+        + 23 813 more rows…
+      </div>
+    </div>
+  );
+}
+
+function FeaturesSection() {
+  return (
+    <section className="s" id="features" style={{ background: 'var(--paper-2)' }}>
+      <div className="container">
+        <div className="section-head">
+          <span className="eyebrow">§ III — Features</span>
+          <h2>Five <Glitch>primitives</Glitch>. Each operative <em className="serif"><Glitch>during</Glitch></em> an outage.</h2>
+          <p className="sub">
+            Encrypted grade vault, FERPA-grade messaging, continuity layer, broadcast announcements,
+            standards-based LMS interop. No tier upsells.
+          </p>
+        </div>
+
+        <div className="feat-grid">
+          <Feat ix="01" title="E2EE Grade Vault" wide accent>
+            Professors enter grades in GradeVault; values are encrypted on-device with WebCrypto
+            before they ever reach a server. Only authorized students, instructors, and approved
+            institutional recovery keys can decrypt them. The platform itself is not in the trust set.
+          </Feat>
+          <Feat ix="02" title="FERPA-grade messaging" glyph={<Glyph.Lock />}>
+            Grade disputes, accommodation notes, and feedback travel encrypted end-to-end —
+            never stored in plaintext inside the LMS where a breach would expose them.
+          </Feat>
+          <Feat ix="03" title="Continuity layer" glyph={<Glyph.Signal />}>
+            When Canvas, Blackboard, or Moodle go dark, students still reach assignments,
+            due dates, announcements, and emergency instructions through GradeVault.
+          </Feat>
+          <Feat ix="04" title="Announcement & email blast" glyph={<Glyph.Megaphone />}>
+            Push emergency announcements through GradeVault and trigger simultaneous
+            email blasts to every enrolled student in seconds.
+          </Feat>
+          <Feat ix="05" title="LTI 1.3 integration" glyph={<Glyph.Plug />}>
+            GradeVault rides alongside your existing LMS through standard LTI Advantage —
+            no rip-and-replace, no separate logins, no vendor swap.
+          </Feat>
+          <Feat ix="06" title="Recovery without backdoors" glyph={<Glyph.Vault />}>
+            A 3-of-5 Shamir-split recovery key sealed across registrar, IT, and ombuds offices.
+            Three signatures recover a record. One office cannot read it alone.
+          </Feat>
+        </div>
+      </div>
+
+      <style>{`
+        .feat-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
+        .feat-card { grid-column: span 4; padding: 32px 28px 36px; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; position: relative; transition: all 200ms ease; }
+        .feat-card:hover { border-color: var(--ink); transform: translateY(-3px); }
+        .feat-card.wide { grid-column: span 12; padding: 44px 44px 48px; background: var(--ink); color: var(--paper); border-color: var(--ink); }
+        .feat-card.wide .ix { color: var(--coral); }
+        .feat-card.wide h3 { color: var(--paper); max-width: 520px; }
+        .feat-card.wide p { color: rgba(255,255,255,0.72); max-width: 700px; }
+        .feat-card.wide .corner-shape {
+          position: absolute; top: 0; right: 0; width: 240px; height: 100%; pointer-events: none;
+          background:
+            radial-gradient(circle 110px at 80% 30%, var(--coral) 0 100%, transparent 100%),
+            radial-gradient(circle 60px at 60% 70%, rgba(226,63,58,0.5) 0 100%, transparent 100%);
+        }
+        .feat-card .ix { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-soft); letter-spacing: 0.18em; }
+        .feat-card .glyph { width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--coral); margin-bottom: 22px; margin-top: 18px; }
+        .feat-card h3 { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 24px; line-height: 1.15; letter-spacing: -0.02em; margin: 14px 0 10px; }
+        .feat-card.wide h3 { font-size: 40px; line-height: 1.05; letter-spacing: -0.03em; margin: 28px 0 18px; }
+        .feat-card p { font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 0; }
+        @media (max-width: 1000px) { .feat-card { grid-column: span 12; } }
+      `}</style>
+    </section>
+  );
+}
+
+function Feat({ ix, title, children, wide, glyph, accent }) {
+  return (
+    <article className={`feat-card ${wide ? 'wide' : ''}`}>
+      {wide && <div className="corner-shape" />}
+      <div className="ix" style={{ position: 'relative' }}>{ix}</div>
+      {!wide && <div className="glyph">{glyph}</div>}
+      <h3 style={{ position: 'relative' }}>{title}</h3>
+      <p style={{ position: 'relative' }}>{children}</p>
+    </article>
+  );
+}
+
+function IntegrationsSection() {
+  return (
+    <section className="s" id="integrations" style={{ background: 'var(--paper)' }}>
+      <div className="container">
+        <div className="section-head">
+          <span className="eyebrow">§ IV — Integrations</span>
+          <h2>Installed <em className="serif"><Glitch>alongside</Glitch></em> the LMS your institution already uses.</h2>
+          <p className="sub">Standards-based LTI 1.3 connectors. No rip-and-replace.</p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 14, marginBottom: 64 }} className="lms-grid">
+          <LMSCell name="Canvas" status="LTI 1.3 · LIVE" live />
+          <LMSCell name="Blackboard" status="LTI 1.3 · LIVE" live />
+          <LMSCell name="Moodle" status="LTI 1.3 · LIVE" live />
+          <LMSCell name="Brightspace" status="LTI 1.3 · BETA" />
+          <LMSCell name="Schoology" status="LTI 1.3 · BETA" />
+        </div>
+
+        <OutageSimulator />
+      </div>
+
+      <style>{`
+        .lms-cell { padding: 26px 22px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; text-align: center; transition: all 160ms ease; }
+        .lms-cell.live { border-color: var(--ink); }
+        .lms-cell:hover { border-color: var(--coral); transform: translateY(-2px); }
+        .lms-cell .name { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.02em; }
+        .lms-cell .meta { display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; margin-top: 8px; color: var(--ink-soft); }
+        .lms-cell.live .meta { color: var(--ok); }
+        @media (max-width: 1000px) { .lms-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+      `}</style>
+    </section>
+  );
+}
+
+function LMSCell({ name, status, live }) {
+  return (
+    <div className={`lms-cell ${live ? 'live' : ''}`}>
+      <div className="name">{name}</div>
+      <span className="meta">{status}</span>
+    </div>
+  );
+}
+
+function OutageSimulator() {
+  const [down, setDown] = useState(false);
+  return (
+    <div className="card" style={{ overflow: 'hidden' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 24px', borderBottom: '1px solid var(--line)', background: 'var(--paper-2)' }}>
+        <div className="mono" style={{ fontSize: 12, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 600, color: 'var(--ink-soft)' }}>
+          Outage simulator — <span style={{ color: down ? 'var(--coral)' : 'var(--ok)' }}>{down ? 'LMS DOWN' : 'LMS UP'}</span>
+        </div>
+        <button onClick={() => setDown(d => !d)} className="btn btn-ghost" style={{ padding: '10px 18px', fontSize: 13 }}>
+          {down ? 'Restore the LMS' : 'Take the LMS down'}
+        </button>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }} className="hero-grid">
+        <Pane title="Your LMS" status={down ? 'down' : 'up'} bordered>
+          {down ? (
+            <div>
+              <div className="mono" style={{ fontSize: 13, marginBottom: 14, color: 'var(--coral)', fontWeight: 600 }}>HTTP 503 · service unavailable</div>
+              <div style={{ color: 'var(--ink-soft)', fontSize: 14, lineHeight: 1.55 }}>
+                Students can't reach assignments, due dates, announcements, or messages.
+                Faculty can't post grades. Office staff are answering phones.
+              </div>
+            </div>
+          ) : (
+            <div style={{ color: 'var(--ink)', fontSize: 14 }}>
+              <DotLine label="Spring 2026 — CS 240 · Lecture 14 posted" />
+              <DotLine label="Assignment 7 due Friday 11:59 PM" />
+              <DotLine label="Office hours moved to Thursday" />
+            </div>
+          )}
+        </Pane>
+        <Pane title="GradeVault — continuity layer" status="up">
+          <div style={{ color: 'var(--ink)', fontSize: 14 }}>
+            <DotLine label="Mirrored: Assignment 7 · due Fri 11:59 PM" gold />
+            <DotLine label="Mirrored: Lecture 14 PDF (encrypted)" gold />
+            <DotLine label="Emergency channel — instructor reachable" gold />
+            {down && <DotLine label="Email blast queued: 412 students" gold flash />}
+          </div>
+        </Pane>
+      </div>
+    </div>
+  );
+}
+
+function Pane({ title, status, children, bordered }) {
+  return (
+    <div style={{ padding: '32px 32px 36px', borderRight: bordered ? '1px solid var(--line)' : 'none', minHeight: 240, background: 'var(--paper)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20, alignItems: 'baseline' }}>
+        <div style={{ fontFamily: 'Manrope', fontWeight: 700, fontSize: 18, letterSpacing: '-0.015em' }}>{title}</div>
+        <div className="mono" style={{ fontSize: 11, color: status === 'down' ? 'var(--coral)' : 'var(--ok)', fontWeight: 600 }}>
+          ● {status === 'down' ? 'OFFLINE' : 'ONLINE'}
+        </div>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function DotLine({ label, gold, flash }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 12,
+      padding: '11px 0', borderBottom: '1px solid var(--line)',
+      animation: flash ? 'flash 1.4s ease-in-out infinite' : 'none',
+    }}>
+      <span style={{ width: 7, height: 7, background: gold ? 'var(--coral)' : 'var(--ink-soft)', borderRadius: '50%', flexShrink: 0 }} />
+      <span>{label}</span>
+      <style>{`@keyframes flash { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }`}</style>
+    </div>
+  );
+}
+
+function SecuritySection() {
+  return (
+    <section className="s" id="security" style={{ background: 'var(--ink)', color: 'var(--paper)' }}>
+      <div className="container">
+        <div className="section-head">
+          <span className="eyebrow" style={{ color: 'var(--coral)' }}>§ V — Architecture</span>
+          <h2 style={{ color: 'var(--paper)' }}>
+            <Glitch>Verifiable</Glitch>. <Glitch>Open</Glitch>. <em className="serif" style={{ color: 'var(--coral)' }}><Glitch>Audited</Glitch>.</em>
+          </h2>
+          <p className="sub" style={{ color: 'rgba(255,255,255,0.7)' }}>
+            We've published the threat model and the source. The trust set is the student,
+            the faculty, and the institutional recovery quorum — not us, not the server, not a vendor.
+          </p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }} className="sec-grid">
+          <SecCard label="Crypto" title="WebCrypto + libsodium" body="AES-256-GCM for grade and message bodies. X25519 key agreement. Ed25519 signatures on every record. Zero custom crypto." />
+          <SecCard label="Trust model" title="Server is untrusted" body="Our server stores ciphertext, sealed key bundles, and signed metadata. We can't read your grades. Neither can a subpoena to us." />
+          <SecCard label="Recovery" title="3-of-5 institutional split" body="Recovery keys split across registrar, ITS, ombuds, dean of students, and an external auditor. No single office unilaterally decrypts a record." />
+          <SecCard label="Compliance" title="FERPA · GDPR · SOC 2 II" body="Continuous third-party audit. Quarterly transparency reports. Public ciphertext-canary. Crypto reviewed by NCC Group and Trail of Bits." />
+          <SecCard label="Open source" title="Client is reproducible" body="Student- and faculty-side clients are open source under Apache 2.0 with reproducible builds. Verify the binary you run matches the audited source." />
+          <SecCard label="Data residency" title="EU · US · your campus" body="Pick your region. Or self-host the storage layer on your own datacenter — GradeVault works the same; the trust model doesn't depend on where ciphertext lives." />
+        </div>
+      </div>
+
+      <style>{`
+        @media (max-width: 1000px) { .sec-grid { grid-template-columns: 1fr !important; } }
+      `}</style>
+    </section>
+  );
+}
+
+function SecCard({ label, title, body }) {
+  return (
+    <div style={{ border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: 28, background: 'rgba(255,255,255,0.03)', transition: 'border-color 160ms' }}
+         onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--coral)'}
+         onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}>
+      <div className="mono" style={{ fontSize: 11, color: 'var(--coral)', letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 600 }}>{label}</div>
+      <h4 style={{ fontFamily: 'Manrope', fontWeight: 700, fontSize: 22, margin: '14px 0 12px', letterSpacing: '-0.02em', lineHeight: 1.15, color: 'var(--paper)' }}>{title}</h4>
+      <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14.5, margin: 0, lineHeight: 1.55 }}>{body}</p>
+    </div>
+  );
+}
+
+function PledgeSection() {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    let i = 0;
+    const id = setInterval(() => { i++; setCount(Math.round(247 * Math.min(1, i / 60))); if (i >= 60) clearInterval(id); }, 18);
+    return () => clearInterval(id);
+  }, []);
+
+  const [submitted, setSubmitted] = useState(false);
+  const [form, setForm] = useState({ inst: '', email: '', role: 'Registrar' });
+
+  return (
+    <section className="s" id="sign" style={{ background: 'var(--paper-2)' }}>
+      <div className="container">
+        <div className="section-head">
+          <span className="eyebrow">§ VI — The initiative</span>
+          <h2>That every <Glitch>institution</Glitch> shall be a <em className="serif accent"><Glitch>signatory</Glitch></em>.</h2>
+          <p className="sub">
+            A public commitment by colleges, universities, K-12 districts, and ed-tech departments
+            to require end-to-end encrypted academic records and an LMS continuity layer by Fall 2027.
+          </p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1.05fr 1fr', gap: 56, alignItems: 'start' }} className="hero-grid">
+          <div>
+            <div style={{ display: 'flex', gap: 36, flexWrap: 'wrap', marginBottom: 36 }}>
+              <Counter num={count} lbl="institutions pledged" />
+              <Counter num="14" lbl="state systems endorsed" />
+              <Counter num="3.2M" lbl="students represented" />
+            </div>
+
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {[
+                'No cost for the first cohort of 1,000 institutions.',
+                'Deploys via LTI 1.3 — no LMS replacement required.',
+                'White-glove onboarding team during summer term.',
+                'Open-source clients. Audited by Trail of Bits and NCC Group.',
+              ].map(t => (
+                <li key={t} style={{ display: 'flex', gap: 14, alignItems: 'baseline', fontSize: 15.5 }}>
+                  <span style={{ color: 'var(--coral)', fontWeight: 700 }}>✓</span>
+                  <span>{t}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }}
+            style={{ border: '1px solid var(--line)', borderRadius: 16, padding: 32, background: 'var(--paper)' }}>
+            {submitted ? (
+              <div style={{ minHeight: 360, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <span className="chip light" style={{ alignSelf: 'flex-start' }}><span className="dot" style={{ background: 'var(--ok)' }}></span>Pledge recorded</span>
+                <div style={{ fontFamily: 'Manrope', fontWeight: 800, fontSize: 36, lineHeight: 1, letterSpacing: '-0.03em', margin: '20px 0 16px' }}>
+                  Thank you, {form.inst || 'colleague'}.
+                </div>
+                <p style={{ color: 'var(--ink-soft)', fontSize: 15, lineHeight: 1.55 }}>
+                  Our institutional team will reach <strong>{form.email || 'your inbox'}</strong> within
+                  one business day with the signatory packet, the technical onboarding plan,
+                  and a reference list of institutions in your state system already pledged.
+                </p>
+                <button type="button" onClick={() => { setSubmitted(false); setForm({ inst: '', email: '', role: 'Registrar' }); }} className="btn btn-ghost" style={{ alignSelf: 'flex-start', marginTop: 24, padding: '10px 18px', fontSize: 13 }}>
+                  Submit another
+                </button>
+              </div>
+            ) : (
+              <>
+                <span className="label" style={{ color: 'var(--coral)' }}>Signatory form</span>
+                <div style={{ fontFamily: 'Manrope', fontWeight: 800, fontSize: 32, lineHeight: 1.05, letterSpacing: '-0.03em', margin: '12px 0 26px' }}>
+                  Pledge your institution.
+                </div>
+
+                <Field label="Institution" required>
+                  <input value={form.inst} onChange={e => setForm({ ...form, inst: e.target.value })} placeholder="University of —" required />
+                </Field>
+                <Field label="Official email" required>
+                  <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} type="email" placeholder="you@institution.edu" required />
+                </Field>
+                <Field label="Role">
+                  <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })}>
+                    {['Registrar', 'CIO / IT Director', 'Provost', 'Dean of Students', 'Faculty', 'Other'].map(r => <option key={r}>{r}</option>)}
+                  </select>
+                </Field>
+
+                <button type="submit" className="btn btn-coral" style={{ width: '100%', justifyContent: 'center', marginTop: 12 }}>
+                  Sign the pledge →
+                </button>
+                <div className="mono" style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 14, textAlign: 'center', letterSpacing: '0.14em' }}>
+                  NON-BINDING LETTER OF INTENT · FINAL MOU FOLLOWS
+                </div>
+              </>
+            )}
+          </form>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Counter({ num, lbl }) {
+  return (
+    <div>
+      <div style={{ fontFamily: 'Manrope', fontWeight: 800, fontSize: 56, lineHeight: 0.95, letterSpacing: '-0.04em', color: 'var(--ink)' }}>{num}</div>
+      <div className="mono" style={{ fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 8, color: 'var(--ink-soft)' }}>{lbl}</div>
+    </div>
+  );
+}
+
+function Field({ label, required, children }) {
+  return (
+    <label style={{ display: 'block', marginBottom: 16 }}>
+      <span className="mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--ink-soft)', fontWeight: 600 }}>
+        {label}{required && <span style={{ color: 'var(--coral)' }}> *</span>}
+      </span>
+      <div style={{ marginTop: 8 }}>{children}</div>
+      <style>{`
+        label input, label select { width: 100%; padding: 13px 16px; background: var(--paper); border: 1px solid var(--line); color: var(--ink); font-family: 'Manrope', sans-serif; font-size: 15px; border-radius: 10px; outline: none; transition: border-color 120ms; }
+        label input:focus, label select:focus { border-color: var(--coral); }
+        label input::placeholder { color: var(--ink-soft); opacity: 0.55; }
+        label select { appearance: none; cursor: pointer; }
+      `}</style>
+    </label>
+  );
+}
+
+function FAQSection() {
+  const [open, setOpen] = useState(0);
+  const items = [
+    { q: 'Does GradeVault replace our LMS?', a: 'No. GradeVault attaches to your LMS through LTI 1.3. Faculty keep using Canvas, Blackboard, Moodle, or Brightspace as the front door for course content. GradeVault sits beside it as the encrypted vault for grades, FERPA-sensitive messages, and the continuity layer that takes over when the LMS goes down.' },
+    { q: 'What happens when a student loses their device?', a: 'Recovery uses a 3-of-5 institutional split. The registrar, ITS, ombuds, dean of students, and an external auditor each hold one share. Three of them, present at the same recovery ceremony, can re-encrypt a student\'s vault to a new device key — and every recovery is signed, logged, and visible on the institution\'s transparency log.' },
+    { q: 'Can the GradeVault company read our data?', a: 'No, by construction. Plaintext is encrypted in the browser before it reaches our servers. Our database stores ciphertext, sealed key bundles, and signed metadata. We have no key. A subpoena to us yields ciphertext. The trust set is the student, the faculty, and the institutional recovery quorum — not us.' },
+    { q: 'How fast can we deploy this?', a: 'A typical campus deploys GradeVault in two weeks. Week one is the LTI integration and SSO mapping. Week two is faculty onboarding and the recovery key ceremony. Existing grades migrate as faculty post the next term — no big-bang import, and no instructional time is lost.' },
+    { q: 'What does it cost?', a: 'Free for the first cohort of 1,000 institutions. After that, a flat per-student fee that scales down for K-12 and community colleges. The pricing is published; there is no per-feature upsell, no separate "security" tier, and no charge for the continuity / outage backup features. Those are the point.' },
+  ];
+  return (
+    <section className="s" id="faq" style={{ background: 'var(--paper)' }}>
+      <div className="container">
+        <div className="section-head">
+          <span className="eyebrow">§ VII — Q&A</span>
+          <h2>Questions every CIO has already <em className="serif"><Glitch>asked</Glitch></em>.</h2>
+        </div>
+
+        <div style={{ maxWidth: 920, margin: '0 auto' }}>
+          {items.map((it, i) => (
+            <div key={i} style={{ borderTop: '1px solid var(--line)', borderBottom: i === items.length - 1 ? '1px solid var(--line)' : 'none' }}>
+              <button onClick={() => setOpen(open === i ? -1 : i)}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '26px 4px', background: 'transparent', border: 'none', color: 'var(--ink)',
+                  fontFamily: 'Manrope', fontWeight: 700, fontSize: 22, textAlign: 'left', cursor: 'pointer',
+                  letterSpacing: '-0.02em',
+                }}>
+                <span style={{ display: 'flex', gap: 24, alignItems: 'baseline' }}>
+                  <span className="mono" style={{ fontSize: 13, color: 'var(--coral)', fontWeight: 600 }}>Q.0{i + 1}</span>
+                  {it.q}
+                </span>
+                <span style={{
+                  width: 32, height: 32, borderRadius: 999,
+                  border: '1px solid var(--line)',
+                  background: open === i ? 'var(--coral)' : 'var(--paper)',
+                  color: open === i ? 'var(--paper)' : 'var(--ink)',
+                  borderColor: open === i ? 'var(--coral)' : 'var(--line)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: 'Manrope', fontWeight: 500, fontSize: 20,
+                  transform: open === i ? 'rotate(45deg)' : 'rotate(0)', transition: 'all 200ms', flexShrink: 0,
+                }}>+</span>
+              </button>
+              {open === i && (
+                <div style={{ paddingBottom: 28, paddingLeft: 60, maxWidth: 820, color: 'var(--ink-soft)', fontSize: 16, lineHeight: 1.6 }}>
+                  {it.a}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer>
+      <div className="container">
+        <div className="grid">
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+              <span style={{ width: 32, height: 32, background: 'var(--paper)', color: 'var(--ink)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Glyph.Mark /></span>
+              <span style={{ fontFamily: 'Manrope', fontWeight: 800, fontSize: 26, letterSpacing: '-0.03em' }}>GradeVault</span>
+              <span style={{ width: 8, height: 8, background: 'var(--coral)', borderRadius: '50%', alignSelf: 'flex-end', transform: 'translateY(-3px)' }}></span>
+            </div>
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, maxWidth: 360, lineHeight: 1.6 }}>
+              An end-to-end encrypted academic records and LMS continuity layer.
+              Built so the next breach doesn't turn into a transcript leak.
+            </p>
+          </div>
+          <div>
+            <h4>Product</h4>
+            <ul>
+              <li><a href="#features">Features</a></li>
+              <li><a href="#integrations">Integrations</a></li>
+              <li><a href="#security">Security model</a></li>
+              <li><a href="#">Roadmap</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Institutions</h4>
+            <ul>
+              <li><a href="#sign">Pledge form</a></li>
+              <li><a href="#">Procurement packet</a></li>
+              <li><a href="#">Reference list</a></li>
+              <li><a href="#">Pilot program</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Trust</h4>
+            <ul>
+              <li><a href="#">Audit reports</a></li>
+              <li><a href="#">Open-source clients</a></li>
+              <li><a href="#">Transparency log</a></li>
+              <li><a href="#">Disclosure policy</a></li>
+            </ul>
+          </div>
+        </div>
+        <div className="colophon">
+          <span>© 2026 GRADEVAULT INITIATIVE</span>
+          <span style={{ color: 'var(--coral)' }}>● ALL SYSTEMS NOMINAL</span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function App() {
+  React.useEffect(() => {
+    const id = setInterval(() => {
+      const arr = Array.from(window.__glitchPool || []);
+      if (!arr.length) return;
+      const fire = arr[Math.floor(Math.random() * arr.length)];
+      fire();
+    }, 3000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <React.Fragment>
+      <TopNav />
+      <Hero />
+      <BreachMarquee />
+      <BreachSection />
+      <HowSection />
+      <FeaturesSection />
+      <IntegrationsSection />
+      <SecuritySection />
+      <PledgeSection />
+      <FAQSection />
+      <Footer />
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+</body>
+</html>
