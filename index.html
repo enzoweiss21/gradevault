@@ -28,6 +28,8 @@
   }
 
   * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   html, body { margin: 0; padding: 0; background: var(--paper); color: var(--ink); }
   body {
     font-family: 'Manrope', system-ui, sans-serif;
@@ -391,6 +393,30 @@ function Glitch({ children }) {
   return <span ref={ref} style={{ display: 'inline' }}>{children}</span>;
 }
 
+function Reveal({ children, delay = 0, y = 24 }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) { setVisible(true); return; }
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) { setVisible(true); io.disconnect(); return; }
+      }
+    }, { threshold: 0.12 });
+    if (ref.current) io.observe(ref.current);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <div ref={ref} style={{
+      opacity: visible ? 1 : 0,
+      transform: visible ? 'translate3d(0,0,0)' : `translate3d(0,${y}px,0)`,
+      transition: `opacity 760ms ${delay}ms cubic-bezier(0.16, 1, 0.3, 1), transform 760ms ${delay}ms cubic-bezier(0.16, 1, 0.3, 1)`,
+      willChange: 'opacity, transform',
+    }}>{children}</div>
+  );
+}
+
 function TopNav() {
   return (
     <nav className="top">
@@ -404,13 +430,18 @@ function TopNav() {
           <div className="links">
             <a href="#problem">Why GradeVault</a>
             <a href="#how">How it works</a>
-            <a href="#features">Features</a>
-            <a href="#integrations">Integrations</a>
-            <a href="#security">Security</a>
+            <a href="#continuity">Continuity</a>
+            <a href="#sign">Initiative</a>
+            <a href="#faq">FAQ</a>
           </div>
-          <a href="#sign" className="btn" style={{ padding: '11px 22px', fontSize: 14 }}>
-            Pledge your school
-          </a>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <a href="#sign-info" className="btn btn-ghost" style={{ padding: '11px 18px', fontSize: 14 }}>
+              Request info
+            </a>
+            <a href="#sign-pledge" className="btn" style={{ padding: '11px 22px', fontSize: 14 }}>
+              Pledge your school
+            </a>
+          </div>
         </div>
       </div>
     </nav>
@@ -436,10 +467,13 @@ function Hero() {
             </p>
 
             <div style={{ display: 'flex', gap: 14, marginTop: 36, flexWrap: 'wrap', alignItems: 'center' }}>
-              <a href="#sign" className="btn btn-coral">
+              <a href="#sign-pledge" className="btn btn-coral">
                 Pledge your institution →
               </a>
-              <a href="#how" className="btn btn-on-dark">
+              <a href="#sign-info" className="btn btn-on-dark">
+                Administrator briefing →
+              </a>
+              <a href="#how" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, fontWeight: 600, textDecoration: 'none', marginLeft: 6, borderBottom: '1px solid rgba(255,255,255,0.3)', paddingBottom: 2 }}>
                 See how it works
               </a>
             </div>
@@ -569,22 +603,24 @@ function BreachSection() {
   return (
     <section className="s" id="problem" style={{ background: 'var(--paper-2)' }}>
       <div className="container">
-        <div className="section-head">
-          <span className="eyebrow">§ I — The problem</span>
-          <h2>
-            <Glitch>Plaintext</Glitch> grades were never going to age well.
-          </h2>
-          <p className="sub">
-            Schools weren't careless. The LMS architecture asks them to trust a single vendor
-            with a complete plaintext copy of every grade, message, and accommodation note ever recorded.
-          </p>
-        </div>
+        <Reveal>
+          <div className="section-head">
+            <span className="eyebrow">§ I — The problem</span>
+            <h2>
+              <Glitch>Plaintext</Glitch> grades were never going to age well.
+            </h2>
+            <p className="sub">
+              Schools weren't careless. The LMS architecture asks them to trust a single vendor
+              with a complete plaintext copy of every grade, message, and accommodation note ever recorded.
+            </p>
+          </div>
+        </Reveal>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }} className="stat-grid">
-          <Stat num="42M" lbl="Student records reportedly exposed across LMS incidents in 24 months." />
-          <Stat num="0" lbl="Major LMS platforms that store grades or messages with end-to-end encryption today." />
-          <Stat num="11d" lbl="Median time a campus LMS spent fully or partially offline during recent breach response." />
-          <Stat num="100%" lbl="Of FERPA-protected information leaks in plaintext when an LMS database is exfiltrated." />
+          <Reveal delay={0}><Stat num="42M" lbl="Student records reportedly exposed across LMS incidents in 24 months." /></Reveal>
+          <Reveal delay={90}><Stat num="0" lbl="Major LMS platforms that store grades or messages with end-to-end encryption today." /></Reveal>
+          <Reveal delay={180}><Stat num="11d" lbl="Median time a campus LMS spent fully or partially offline during recent breach response." /></Reveal>
+          <Reveal delay={270}><Stat num="100%" lbl="Of FERPA-protected information leaks in plaintext when an LMS database is exfiltrated." /></Reveal>
         </div>
       </div>
 
@@ -615,14 +651,16 @@ function HowSection() {
   return (
     <section className="s" id="how" style={{ background: 'var(--paper)' }}>
       <div className="container">
-        <div className="section-head">
-          <span className="eyebrow">§ II — How it works</span>
-          <h2>What a registrar's <Glitch>database</Glitch> <em className="serif"><Glitch>ought</Glitch></em> to look like.</h2>
-          <p className="sub">
-            Toggle between an industry-standard LMS table and the GradeVault equivalent.
-            What the attacker actually sees during a database breach — same data, two architectures.
-          </p>
-        </div>
+        <Reveal>
+          <div className="section-head">
+            <span className="eyebrow">§ II — How it works</span>
+            <h2>What a registrar's <Glitch>database</Glitch> <em className="serif"><Glitch>ought</Glitch></em> to look like.</h2>
+            <p className="sub">
+              Toggle between an industry-standard LMS table and the GradeVault equivalent.
+              What the attacker actually sees during a database breach — same data, two architectures.
+            </p>
+          </div>
+        </Reveal>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1.05fr 1fr', gap: 56, alignItems: 'start' }} className="hero-grid">
           <div>
@@ -737,6 +775,373 @@ function DBView({ mode }) {
   );
 }
 
+function ContinuitySection() {
+  const PHASES = [
+    { id: 'sync',     dur: 4200, label: 'Synchronized',         hud: '● TWIN SHADOWING PRIMARY' },
+    { id: 'degrade',  dur: 1400, label: 'Detecting fault…',     hud: '⚠ LATENCY SPIKE · 4,210ms' },
+    { id: 'down',     dur: 2400, label: 'Primary offline',      hud: '✖ HTTP 503 · ORIGIN UNREACHABLE' },
+    { id: 'failover', dur: 1400, label: 'Promoting twin',       hud: '↻ PROMOTING TWIN · t+0.4s' },
+    { id: 'active',   dur: 4200, label: 'Failover active',      hud: '● TWIN SERVING TRAFFIC' },
+    { id: 'restore',  dur: 1800, label: 'Restoring primary',    hud: '↺ RESTORING PRIMARY · RESYNCING' },
+  ];
+
+  const [phaseIx, setPhaseIx] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const t = setTimeout(() => setPhaseIx(i => (i + 1) % PHASES.length), PHASES[phaseIx].dur);
+    return () => clearTimeout(t);
+  }, [phaseIx, paused]);
+
+  const phase = PHASES[phaseIx].id;
+  const primaryDown = phase === 'down' || phase === 'failover' || phase === 'active';
+  const primaryDegrading = phase === 'degrade';
+  const twinActive = phase === 'failover' || phase === 'active';
+  const restoring = phase === 'restore';
+  const flowReverse = twinActive;
+
+  return (
+    <section className="s" id="continuity" style={{ background: 'var(--ink)', color: 'var(--paper)', overflow: 'hidden', position: 'relative' }}>
+      {/* ambient grid */}
+      <div aria-hidden style={{
+        position: 'absolute', inset: 0, opacity: 0.06, pointerEvents: 'none',
+        backgroundImage: 'linear-gradient(var(--paper) 1px, transparent 1px), linear-gradient(90deg, var(--paper) 1px, transparent 1px)',
+        backgroundSize: '64px 64px',
+        maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)',
+        WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)',
+      }} />
+
+      <div className="container" style={{ position: 'relative' }}>
+        <Reveal>
+          <div className="section-head">
+            <span className="eyebrow" style={{ color: 'var(--coral)' }}>§ III — LMS Continuity</span>
+            <h2 style={{ color: 'var(--paper)' }}>
+              When the LMS goes <em className="serif" style={{ color: 'var(--coral)' }}><Glitch>dark</Glitch></em>,<br />
+              the digital twin lights up.
+            </h2>
+            <p className="sub" style={{ color: 'rgba(255,255,255,0.7)' }}>
+              GradeVault runs as a continuously synchronized shadow of your LMS.
+              The moment the primary fails, traffic flips to the twin — students keep their
+              assignments, due dates, and emergency channels without touching a status page.
+            </p>
+          </div>
+        </Reveal>
+
+        <Reveal delay={120}>
+          <div className="twin-stage">
+            <TwinPanel
+              kind="primary"
+              brand="canvas.your-uni.edu"
+              status={primaryDown ? 'OFFLINE' : primaryDegrading ? 'DEGRADING' : 'LIVE'}
+              statusColor={primaryDown ? 'var(--coral)' : primaryDegrading ? '#d8a541' : '#3ddc84'}
+              down={primaryDown}
+              degrading={primaryDegrading}
+              dim={twinActive}
+            />
+
+            <SyncBridge phase={phase} reverse={flowReverse} />
+
+            <TwinPanel
+              kind="twin"
+              brand="vault.gradevault.org"
+              status={twinActive ? 'ACTIVE FAILOVER' : restoring ? 'RESYNCING ↻' : 'SHADOW · SYNCED'}
+              statusColor={twinActive ? 'var(--coral)' : restoring ? '#d8a541' : '#3ddc84'}
+              active={twinActive}
+              promoting={phase === 'failover'}
+            />
+          </div>
+        </Reveal>
+
+        <Reveal delay={240}>
+          <div className="twin-hud">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
+              <span className="mono twin-hud-label">SYSTEM STATE</span>
+              <span className="mono twin-hud-value" style={{ color: phase === 'down' ? 'var(--coral)' : phase === 'degrade' ? '#d8a541' : phase === 'active' ? 'var(--coral)' : '#3ddc84' }}>
+                {PHASES[phaseIx].hud}
+              </span>
+              <div className="twin-progress">
+                {PHASES.map((p, i) => (
+                  <span key={p.id} className={`twin-progress-step ${i === phaseIx ? 'on' : ''} ${i < phaseIx ? 'past' : ''}`} />
+                ))}
+              </div>
+            </div>
+            <button onClick={() => setPaused(p => !p)} className="btn btn-on-dark twin-pause">
+              {paused ? '▶ Resume cycle' : '❚❚ Pause'}
+            </button>
+          </div>
+        </Reveal>
+      </div>
+
+      <style>{`
+        .twin-stage {
+          display: grid;
+          grid-template-columns: 1fr 96px 1fr;
+          gap: 0;
+          align-items: stretch;
+          margin-top: 8px;
+        }
+        .twin-card {
+          position: relative;
+          border-radius: 18px;
+          border: 1.5px solid rgba(255,255,255,0.10);
+          background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%);
+          padding: 26px 28px 28px;
+          min-height: 380px;
+          transition: border-color 600ms cubic-bezier(0.16,1,0.3,1),
+                      background 600ms cubic-bezier(0.16,1,0.3,1),
+                      transform 600ms cubic-bezier(0.16,1,0.3,1),
+                      filter 600ms ease,
+                      opacity 600ms ease;
+          overflow: hidden;
+          backdrop-filter: blur(6px);
+        }
+        .twin-card.is-down {
+          border-color: rgba(226,63,58,0.55);
+          background: linear-gradient(180deg, rgba(226,63,58,0.10) 0%, rgba(226,63,58,0.02) 100%);
+          filter: grayscale(0.45);
+          opacity: 0.78;
+          transform: scale(0.985);
+        }
+        .twin-card.is-degrade {
+          border-color: rgba(216,165,65,0.55);
+          background: linear-gradient(180deg, rgba(216,165,65,0.08) 0%, rgba(216,165,65,0.02) 100%);
+          animation: twinFlicker 0.45s steps(3, end) infinite;
+        }
+        .twin-card.is-active {
+          border-color: rgba(226,63,58,0.7);
+          background: linear-gradient(180deg, rgba(226,63,58,0.10) 0%, rgba(226,63,58,0.03) 100%);
+          box-shadow: 0 30px 80px -30px rgba(226,63,58,0.55);
+          transform: translateY(-3px);
+        }
+        .twin-card.is-promoting::before {
+          content: ""; position: absolute; inset: -2px; border-radius: 20px;
+          border: 2px solid var(--coral);
+          animation: twinPulse 1.2s cubic-bezier(0.16,1,0.3,1) infinite;
+          pointer-events: none;
+        }
+        .twin-card.is-dim { opacity: 0.55; transform: scale(0.99); }
+
+        .twin-head {
+          display: flex; justify-content: space-between; align-items: center;
+          margin-bottom: 22px;
+          padding-bottom: 16px;
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .twin-head .lhs { display: flex; gap: 10px; align-items: center; }
+        .twin-head .dot-led {
+          width: 9px; height: 9px; border-radius: 50%;
+          transition: background 400ms, box-shadow 400ms;
+        }
+        .twin-head .url {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 12px;
+          color: rgba(255,255,255,0.7);
+          letter-spacing: 0.02em;
+        }
+        .twin-head .badge {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px; letter-spacing: 0.14em; font-weight: 600;
+          padding: 5px 10px;
+          background: rgba(0,0,0,0.35);
+          border-radius: 999px;
+          transition: color 400ms;
+        }
+        .twin-rows { display: flex; flex-direction: column; gap: 10px; }
+        .twin-row {
+          display: grid; grid-template-columns: 14px 1fr auto;
+          gap: 12px; align-items: center;
+          padding: 12px 14px;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 10px;
+          font-size: 13px;
+          color: rgba(255,255,255,0.85);
+          transition: all 500ms cubic-bezier(0.16,1,0.3,1);
+        }
+        .twin-row .pip {
+          width: 7px; height: 7px; border-radius: 50%;
+          background: #3ddc84;
+          box-shadow: 0 0 6px rgba(61,220,132,0.6);
+          transition: all 400ms;
+        }
+        .twin-row .meta {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px; letter-spacing: 0.14em; color: rgba(255,255,255,0.4);
+        }
+        .twin-card.is-active .twin-row .pip {
+          background: var(--coral);
+          box-shadow: 0 0 10px rgba(226,63,58,0.8);
+        }
+        .twin-card.is-active .twin-row {
+          border-color: rgba(226,63,58,0.25);
+          background: rgba(226,63,58,0.04);
+        }
+        .twin-card.is-active .twin-row {
+          animation: twinSlideIn 540ms cubic-bezier(0.16,1,0.3,1) backwards;
+        }
+        .twin-card.is-active .twin-row:nth-child(1) { animation-delay: 0ms; }
+        .twin-card.is-active .twin-row:nth-child(2) { animation-delay: 80ms; }
+        .twin-card.is-active .twin-row:nth-child(3) { animation-delay: 160ms; }
+        .twin-card.is-active .twin-row:nth-child(4) { animation-delay: 240ms; }
+        .twin-card.is-down .twin-row { color: rgba(255,255,255,0.35); text-decoration: line-through; }
+        .twin-card.is-down .twin-row .pip { background: rgba(255,255,255,0.2); box-shadow: none; }
+
+        .twin-503 {
+          position: absolute; inset: 70px 28px 28px;
+          display: flex; align-items: center; justify-content: center;
+          pointer-events: none;
+        }
+        .twin-503 .stamp {
+          background: rgba(0,0,0,0.85);
+          border: 1.5px solid var(--coral);
+          border-radius: 14px;
+          padding: 18px 26px;
+          transform: rotate(-3deg);
+          animation: twinStampIn 500ms cubic-bezier(0.16,1,0.3,1);
+          box-shadow: 0 20px 40px -10px rgba(226,63,58,0.5);
+        }
+        .twin-503 .code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--coral); font-weight: 600; letter-spacing: 0.18em; margin-bottom: 4px; }
+        .twin-503 .msg { font-family: 'Manrope', sans-serif; font-size: 18px; font-weight: 800; color: var(--paper); letter-spacing: -0.02em; }
+
+        .twin-bridge { position: relative; display: flex; align-items: stretch; justify-content: center; }
+        .twin-bridge svg { width: 100%; height: 100%; min-height: 380px; display: block; }
+        .twin-bridge .label {
+          position: absolute; top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 9px; letter-spacing: 0.18em;
+          color: rgba(255,255,255,0.55); text-transform: uppercase;
+          background: var(--ink);
+          padding: 4px 8px; border-radius: 999px;
+          border: 1px solid rgba(255,255,255,0.12);
+          white-space: nowrap;
+          transition: color 400ms, border-color 400ms;
+        }
+        .twin-bridge.flow-reverse .label { color: var(--coral); border-color: rgba(226,63,58,0.5); }
+
+        .twin-hud {
+          margin-top: 36px; padding-top: 24px;
+          border-top: 1px solid rgba(255,255,255,0.1);
+          display: flex; justify-content: space-between; align-items: center; gap: 24px;
+          flex-wrap: wrap;
+        }
+        .twin-hud-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.5); font-weight: 600; }
+        .twin-hud-value { font-size: 13px; font-weight: 600; letter-spacing: 0.04em; transition: color 400ms; }
+        .twin-progress { display: flex; gap: 6px; margin-left: 8px; }
+        .twin-progress-step { width: 28px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.12); transition: background 300ms; }
+        .twin-progress-step.past { background: rgba(255,255,255,0.45); }
+        .twin-progress-step.on { background: var(--coral); box-shadow: 0 0 8px rgba(226,63,58,0.7); }
+        .twin-pause { padding: 10px 18px !important; font-size: 13px !important; }
+
+        @keyframes twinPulse {
+          0% { transform: scale(1); opacity: 0.95; }
+          100% { transform: scale(1.035); opacity: 0; }
+        }
+        @keyframes twinFlicker {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.78; }
+        }
+        @keyframes twinSlideIn {
+          from { opacity: 0; transform: translateX(-10px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes twinStampIn {
+          from { opacity: 0; transform: rotate(-3deg) scale(0.85); }
+          to { opacity: 1; transform: rotate(-3deg) scale(1); }
+        }
+        @media (max-width: 1000px) {
+          .twin-stage { grid-template-columns: 1fr; }
+          .twin-bridge { display: none; }
+          .twin-hud { flex-direction: column; align-items: flex-start; }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+function TwinPanel({ kind, brand, status, statusColor, down, degrading, active, promoting, dim }) {
+  const cls = ['twin-card'];
+  if (down) cls.push('is-down');
+  if (degrading) cls.push('is-degrade');
+  if (active) cls.push('is-active');
+  if (promoting) cls.push('is-promoting');
+  if (dim && !active) cls.push('is-dim');
+
+  const rows = kind === 'primary' ? [
+    { line: 'CS 240 · Lecture 14 PDF',          meta: 'POSTED 09:14' },
+    { line: 'Assignment 7 · due Fri 11:59 PM',  meta: 'GRADED 12/40' },
+    { line: 'Office hours moved to Thursday',   meta: 'NOTICE' },
+    { line: 'Midterm rubric · v2',              meta: 'POSTED 11:02' },
+  ] : [
+    { line: 'Mirrored: Lecture 14 PDF (encrypted)',     meta: 'CIPHER' },
+    { line: 'Mirrored: Assignment 7 · due Fri 11:59 PM', meta: 'CIPHER' },
+    { line: 'Emergency channel — instructor reachable',  meta: 'E2EE' },
+    { line: 'Email blast queued · 412 students',         meta: active ? 'SENDING ↗' : 'STANDBY' },
+  ];
+
+  return (
+    <div className={cls.join(' ')}>
+      <div className="twin-head">
+        <div className="lhs">
+          <span className="dot-led" style={{
+            background: down ? 'var(--coral)' : degrading ? '#d8a541' : active ? 'var(--coral)' : '#3ddc84',
+            boxShadow: down ? '0 0 10px var(--coral)' : active ? '0 0 12px var(--coral)' : `0 0 8px ${degrading ? '#d8a541' : '#3ddc84'}`,
+          }} />
+          <span className="url">{brand}</span>
+        </div>
+        <span className="badge" style={{ color: statusColor }}>● {status}</span>
+      </div>
+
+      <div className="twin-rows">
+        {rows.map((r, i) => (
+          <div key={i} className="twin-row">
+            <span className="pip" />
+            <span>{r.line}</span>
+            <span className="meta">{r.meta}</span>
+          </div>
+        ))}
+      </div>
+
+      {down && (
+        <div className="twin-503">
+          <div className="stamp">
+            <div className="code">HTTP 503</div>
+            <div className="msg">SERVICE UNAVAILABLE</div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SyncBridge({ phase, reverse }) {
+  const intense = reverse;
+  const cls = ['twin-bridge'];
+  if (reverse) cls.push('flow-reverse');
+  return (
+    <div className={cls.join(' ')}>
+      <svg viewBox="0 0 96 380" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="bridgeStroke" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="rgba(255,255,255,0.08)" />
+            <stop offset="50%" stopColor={intense ? 'rgba(226,63,58,0.55)' : 'rgba(61,220,132,0.35)'} />
+            <stop offset="100%" stopColor="rgba(255,255,255,0.08)" />
+          </linearGradient>
+        </defs>
+        <line x1="0" y1="190" x2="96" y2="190" stroke="url(#bridgeStroke)" strokeWidth="1.2" />
+        {phase !== 'down' && [0, 1, 2, 3].map(i => (
+          <circle key={i} r="3.2" cx="0" cy="190" fill={intense ? '#e23f3a' : '#3ddc84'} opacity="0.95">
+            <animate attributeName="cx" values={reverse ? '96;0' : '0;96'} dur="1.6s" begin={`${i * 0.4}s`} repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0;1;1;0" dur="1.6s" begin={`${i * 0.4}s`} repeatCount="indefinite" />
+          </circle>
+        ))}
+      </svg>
+      <span className="label">{reverse ? 'TWIN → USERS' : phase === 'down' ? 'LINK LOST' : 'PRIMARY → TWIN · SYNC'}</span>
+    </div>
+  );
+}
+
 function PledgeSection() {
   const [count, setCount] = useState(0);
   useEffect(() => {
@@ -752,17 +1157,30 @@ function PledgeSection() {
 
   const switchTab = (next) => { setTab(next); setSubmitted(false); };
 
+  useEffect(() => {
+    const apply = () => {
+      const h = window.location.hash;
+      if (h === '#sign-info') { setTab('info'); setSubmitted(false); document.getElementById('sign')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      else if (h === '#sign-pledge' || h === '#sign') { setTab('pledge'); setSubmitted(false); document.getElementById('sign')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    };
+    apply();
+    window.addEventListener('hashchange', apply);
+    return () => window.removeEventListener('hashchange', apply);
+  }, []);
+
   return (
     <section className="s" id="sign" style={{ background: 'var(--paper-2)' }}>
       <div className="container">
-        <div className="section-head">
-          <span className="eyebrow">§ III — The initiative</span>
-          <h2>That every <Glitch>institution</Glitch> shall be a <em className="serif accent"><Glitch>signatory</Glitch></em>.</h2>
-          <p className="sub">
-            A public commitment by colleges, universities, K-12 districts, and ed-tech departments
-            to require end-to-end encrypted academic records and an LMS continuity layer by Fall 2027.
-          </p>
-        </div>
+        <Reveal>
+          <div className="section-head">
+            <span className="eyebrow">§ IV — The initiative</span>
+            <h2>That every <Glitch>institution</Glitch> shall be a <em className="serif accent"><Glitch>signatory</Glitch></em>.</h2>
+            <p className="sub">
+              A public commitment by colleges, universities, K-12 districts, and ed-tech departments
+              to require end-to-end encrypted academic records and an LMS continuity layer by Fall 2027.
+            </p>
+          </div>
+        </Reveal>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1.05fr 1fr', gap: 56, alignItems: 'start' }} className="hero-grid">
           <div>
@@ -941,10 +1359,12 @@ function FAQSection() {
   return (
     <section className="s" id="faq" style={{ background: 'var(--paper)' }}>
       <div className="container">
-        <div className="section-head">
-          <span className="eyebrow">§ IV — Q&A</span>
-          <h2>Questions every CIO has already <em className="serif"><Glitch>asked</Glitch></em>.</h2>
-        </div>
+        <Reveal>
+          <div className="section-head">
+            <span className="eyebrow">§ V — Q&A</span>
+            <h2>Questions every CIO has already <em className="serif"><Glitch>asked</Glitch></em>.</h2>
+          </div>
+        </Reveal>
 
         <div style={{ maxWidth: 920, margin: '0 auto' }}>
           {items.map((it, i) => (
@@ -1055,6 +1475,7 @@ function App() {
       <BreachMarquee />
       <BreachSection />
       <HowSection />
+      <ContinuitySection />
       <PledgeSection />
       <FAQSection />
       <Footer />
