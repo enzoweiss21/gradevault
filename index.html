@@ -230,7 +230,8 @@
     padding: 96px 0 48px;
     background: var(--ink); color: var(--paper);
   }
-  footer .grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; }
+  footer .grid { display: grid; grid-template-columns: 2fr 1fr 1.2fr; gap: 48px; }
+  @media (max-width: 720px) { footer .grid { grid-template-columns: 1fr; } }
   footer h4 { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--coral); font-weight: 500; margin: 0 0 18px; }
   footer ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 14px; color: rgba(255,255,255,0.7); }
   footer ul a { text-decoration: none; }
@@ -1512,30 +1513,19 @@ function Footer() {
             </p>
           </div>
           <div>
-            <h4>Product</h4>
+            <h4>Sections</h4>
             <ul>
-              <li><a href="#features">Features</a></li>
-              <li><a href="#integrations">Integrations</a></li>
-              <li><a href="#security">Security model</a></li>
-              <li><a href="#">Roadmap</a></li>
+              <li><a href="#problem">Why GradeVault</a></li>
+              <li><a href="#how">How it works</a></li>
+              <li><a href="#continuity">LMS continuity</a></li>
+              <li><a href="#faq">FAQ</a></li>
             </ul>
           </div>
           <div>
-            <h4>Institutions</h4>
+            <h4>Take action</h4>
             <ul>
-              <li><a href="#sign">Pledge form</a></li>
-              <li><a href="#">Procurement packet</a></li>
-              <li><a href="#">Reference list</a></li>
-              <li><a href="#">Pilot program</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4>Trust</h4>
-            <ul>
-              <li><a href="#">Audit reports</a></li>
-              <li><a href="#">Open-source clients</a></li>
-              <li><a href="#">Transparency log</a></li>
-              <li><a href="#">Disclosure policy</a></li>
+              <li><a href="#sign-pledge">Pledge your institution</a></li>
+              <li><a href="#sign-info">Request administrator briefing</a></li>
             </ul>
           </div>
         </div>
