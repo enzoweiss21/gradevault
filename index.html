@@ -258,9 +258,13 @@
 
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
 
 <script type="text/babel">
+const SUPABASE_URL = 'https://fmhobtvwdeqzgpnqwumb.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtaG9idHZ3ZGVxemdwbnF3dW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMDcyNjYsImV4cCI6MjA5Mzc4MzI2Nn0.TW5FgbP0onBXQFdtZGVWVvl2aqnlrDjjHacmXQmwcSY';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const Glyph = {
   Vault: () => (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.2">
@@ -1244,10 +1248,44 @@ function PledgeSection() {
 
   const [tab, setTab] = useState('pledge');
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
   const [pledge, setPledge] = useState({ inst: '', email: '', role: 'Registrar' });
   const [info, setInfo] = useState({ inst: '', name: '', title: '', email: '', notes: '' });
 
-  const switchTab = (next) => { setTab(next); setSubmitted(false); };
+  const switchTab = (next) => { setTab(next); setSubmitted(false); setError(null); };
+
+  const submitPledge = async (e) => {
+    e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true); setError(null);
+    const { error: err } = await sb.from('pledges').insert({
+      institution: pledge.inst.trim(),
+      email: pledge.email.trim().toLowerCase(),
+      role: pledge.role,
+      user_agent: navigator.userAgent,
+    });
+    setSubmitting(false);
+    if (err) { setError(err.message || 'Could not save pledge. Try again in a moment.'); return; }
+    setSubmitted(true);
+  };
+
+  const submitInfo = async (e) => {
+    e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true); setError(null);
+    const { error: err } = await sb.from('info_requests').insert({
+      institution: info.inst.trim(),
+      name: info.name.trim(),
+      title: info.title.trim(),
+      email: info.email.trim().toLowerCase(),
+      notes: info.notes.trim() || null,
+      user_agent: navigator.userAgent,
+    });
+    setSubmitting(false);
+    if (err) { setError(err.message || 'Could not send your request. Try again in a moment.'); return; }
+    setSubmitted(true);
+  };
 
   useEffect(() => {
     const apply = () => {
@@ -1309,7 +1347,7 @@ function PledgeSection() {
             </div>
 
             {tab === 'pledge' ? (
-              <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }}>
+              <form onSubmit={submitPledge}>
                 {submitted ? (
                   <div style={{ minHeight: 320, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <span className="chip light" style={{ alignSelf: 'flex-start' }}><span className="dot" style={{ background: 'var(--ok)' }}></span>Pledge recorded</span>
@@ -1344,9 +1382,10 @@ function PledgeSection() {
                       </select>
                     </Field>
 
-                    <button type="submit" className="btn btn-coral" style={{ width: '100%', justifyContent: 'center', marginTop: 12 }}>
-                      Sign the pledge →
+                    <button type="submit" disabled={submitting} className="btn btn-coral" style={{ width: '100%', justifyContent: 'center', marginTop: 12, opacity: submitting ? 0.6 : 1, cursor: submitting ? 'wait' : 'pointer' }}>
+                      {submitting ? 'Saving…' : 'Sign the pledge →'}
                     </button>
+                    {error && <div style={{ marginTop: 12, padding: '10px 14px', background: 'rgba(226,63,58,0.08)', border: '1px solid rgba(226,63,58,0.35)', borderRadius: 8, fontSize: 13, color: 'var(--coral)' }}>{error}</div>}
                     <div className="mono" style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 14, textAlign: 'center', letterSpacing: '0.14em' }}>
                       NON-BINDING LETTER OF INTENT · FINAL MOU FOLLOWS
                     </div>
@@ -1354,7 +1393,7 @@ function PledgeSection() {
                 )}
               </form>
             ) : (
-              <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }}>
+              <form onSubmit={submitInfo}>
                 {submitted ? (
                   <div style={{ minHeight: 320, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <span className="chip light" style={{ alignSelf: 'flex-start' }}><span className="dot" style={{ background: 'var(--ok)' }}></span>Request received</span>
@@ -1395,9 +1434,10 @@ function PledgeSection() {
                       <textarea value={info.notes} onChange={e => setInfo({ ...info, notes: e.target.value })} rows="3" placeholder="Security model, LTI integration timeline, pricing for our enrollment size…" />
                     </Field>
 
-                    <button type="submit" className="btn btn-coral" style={{ width: '100%', justifyContent: 'center', marginTop: 12 }}>
-                      Request the briefing →
+                    <button type="submit" disabled={submitting} className="btn btn-coral" style={{ width: '100%', justifyContent: 'center', marginTop: 12, opacity: submitting ? 0.6 : 1, cursor: submitting ? 'wait' : 'pointer' }}>
+                      {submitting ? 'Sending…' : 'Request the briefing →'}
                     </button>
+                    {error && <div style={{ marginTop: 12, padding: '10px 14px', background: 'rgba(226,63,58,0.08)', border: '1px solid rgba(226,63,58,0.35)', borderRadius: 8, fontSize: 13, color: 'var(--coral)' }}>{error}</div>}
                     <div className="mono" style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 14, textAlign: 'center', letterSpacing: '0.14em' }}>
                       NO COMMITMENT · ADMINISTRATOR INQUIRY ONLY
                     </div>
