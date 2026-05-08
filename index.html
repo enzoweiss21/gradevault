@@ -1238,13 +1238,45 @@ function SyncBridge({ phase, reverse }) {
   );
 }
 
-function PledgeSection() {
-  const [count, setCount] = useState(0);
+function useCountUp(target, duration = 1100) {
+  const [value, setValue] = useState(0);
+  const fromRef = useRef(0);
   useEffect(() => {
-    let i = 0;
-    const id = setInterval(() => { i++; setCount(Math.round(247 * Math.min(1, i / 60))); if (i >= 60) clearInterval(id); }, 18);
-    return () => clearInterval(id);
-  }, []);
+    const from = fromRef.current;
+    if (from === target) return;
+    const start = performance.now();
+    let raf;
+    const step = (t) => {
+      const p = Math.min(1, (t - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      const v = Math.round(from + (target - from) * eased);
+      setValue(v);
+      if (p < 1) raf = requestAnimationFrame(step);
+      else fromRef.current = target;
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return value;
+}
+
+function PledgeSection() {
+  const [stats, setStats] = useState({ total: 0, institutions: 0, students: 0 });
+  const totalCount = useCountUp(stats.total);
+  const instCount = useCountUp(stats.institutions);
+  const studentCount = useCountUp(stats.students);
+
+  const fetchStats = async () => {
+    const { data, error: err } = await sb.rpc('pledge_stats');
+    if (!err && Array.isArray(data) && data[0]) {
+      setStats({
+        total: Number(data[0].total) || 0,
+        institutions: Number(data[0].institutions) || 0,
+        students: Number(data[0].students) || 0,
+      });
+    }
+  };
+  useEffect(() => { fetchStats(); }, []);
 
   const [tab, setTab] = useState('pledge');
   const [submitted, setSubmitted] = useState(false);
@@ -1268,6 +1300,7 @@ function PledgeSection() {
     setSubmitting(false);
     if (err) { setError(err.message || 'Could not save pledge. Try again in a moment.'); return; }
     setSubmitted(true);
+    fetchStats();
   };
 
   const submitInfo = async (e) => {
@@ -1315,9 +1348,9 @@ function PledgeSection() {
         <div style={{ display: 'grid', gridTemplateColumns: '1.05fr 1fr', gap: 56, alignItems: 'start' }} className="hero-grid">
           <div>
             <div style={{ display: 'flex', gap: 36, flexWrap: 'wrap', marginBottom: 36 }}>
-              <Counter num={count} lbl="institutions pledged" />
-              <Counter num="14" lbl="state systems endorsed" />
-              <Counter num="3.2M" lbl="students represented" />
+              <Counter num={totalCount.toLocaleString()} lbl="total signatories" live />
+              <Counter num={instCount.toLocaleString()} lbl="institutions pledged" />
+              <Counter num={studentCount.toLocaleString()} lbl="student endorsements" />
             </div>
 
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -1378,7 +1411,7 @@ function PledgeSection() {
                     </Field>
                     <Field label="Role">
                       <select value={pledge.role} onChange={e => setPledge({ ...pledge, role: e.target.value })}>
-                        {['Registrar', 'CIO / IT Director', 'Provost', 'Dean of Students', 'Faculty', 'Other'].map(r => <option key={r}>{r}</option>)}
+                        {['Registrar', 'CIO / IT Director', 'Provost', 'Dean of Students', 'Faculty', 'Student', 'Other'].map(r => <option key={r}>{r}</option>)}
                       </select>
                     </Field>
 
@@ -1452,11 +1485,18 @@ function PledgeSection() {
   );
 }
 
-function Counter({ num, lbl }) {
+function Counter({ num, lbl, live }) {
   return (
     <div>
+      {live && (
+        <div className="mono" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 10, letterSpacing: '0.18em', color: 'var(--ok)', fontWeight: 700, marginBottom: 6 }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--ok)', boxShadow: '0 0 8px rgba(28,138,91,0.7)', animation: 'liveDot 1.4s ease-in-out infinite' }} />
+          LIVE
+        </div>
+      )}
       <div style={{ fontFamily: 'Manrope', fontWeight: 800, fontSize: 56, lineHeight: 0.95, letterSpacing: '-0.04em', color: 'var(--ink)' }}>{num}</div>
       <div className="mono" style={{ fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 8, color: 'var(--ink-soft)' }}>{lbl}</div>
+      <style>{`@keyframes liveDot { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }`}</style>
     </div>
   );
 }
