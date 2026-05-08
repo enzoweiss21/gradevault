@@ -245,10 +245,71 @@
     letter-spacing: 0.1em;
   }
 
+  /* default: full label visible */
+  nav.top .short-label { display: none; }
+
   @media (max-width: 1000px) {
     .container { padding: 0 24px; }
     nav.top .links { display: none; }
     .hero-grid { grid-template-columns: 1fr !important; }
+  }
+
+  /* Tablet (incl. iPad portrait) */
+  @media (max-width: 900px) {
+    nav.top .row { height: 72px; }
+    nav.top .nav-cta-secondary { display: none; }
+    nav.top .full-label { display: none; }
+    nav.top .short-label { display: inline; }
+
+    .hero { padding: 0 !important; }
+    .hero h1 { font-size: clamp(40px, 7vw, 60px); }
+    .hero .lede { font-size: 17px; }
+
+    section.s { padding: 88px 0; }
+    .section-head { margin: 0 auto 56px; }
+    .section-head h2 { font-size: clamp(34px, 6vw, 52px); }
+  }
+
+  /* Phone */
+  @media (max-width: 620px) {
+    .container { padding: 0 18px; }
+
+    nav.top .row { height: 64px; }
+    nav.top .brand { font-size: 22px; }
+    nav.top .brand .mark svg { width: 20px; height: 24px; }
+    nav.top .nav-cta-primary { padding: 9px 14px !important; font-size: 13px !important; }
+
+    .hero h1 { font-size: 38px; line-height: 1.05; }
+    .hero .lede { font-size: 16px; margin-top: 22px; }
+
+    .hero-ctas { flex-direction: column; align-items: stretch !important; gap: 10px !important; margin-top: 28px !important; }
+    .hero-ctas .btn { width: 100%; justify-content: center; padding: 14px 20px; }
+    .hero-ctas .hero-tertiary { margin-left: 0 !important; align-self: center; margin-top: 6px; }
+
+    .hero-comp { display: none !important; }
+
+    section.s { padding: 64px 0 !important; }
+    .section-head { margin: 0 auto 40px !important; }
+    .section-head h2 { font-size: 32px !important; line-height: 1.08; }
+    .section-head p.sub { font-size: 16px; }
+
+    .stat-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+    .stat-card { padding: 24px 22px !important; }
+    .stat-card .num { font-size: 48px !important; }
+
+    .hero-grid { gap: 36px !important; }
+
+    .form-pair { grid-template-columns: 1fr !important; }
+
+    /* Continuity twin section */
+    .twin-card { padding: 22px 20px 24px !important; min-height: auto !important; }
+    .twin-503 { inset: 64px 20px 20px !important; }
+    .twin-live-banner { top: 12px !important; right: 12px !important; padding: 6px 10px !important; font-size: 10px !important; }
+    .twin-hud { gap: 16px !important; }
+
+    /* FAQ items */
+    #faq button[style*="font-size: 22px"] { font-size: 17px !important; padding: 22px 4px !important; }
+    #faq div[style*="paddingLeft: 60"] { padding-left: 0 !important; font-size: 15px !important; }
   }
 </style>
 </head>
@@ -439,12 +500,13 @@ function TopNav() {
             <a href="#sign">Initiative</a>
             <a href="#faq">FAQ</a>
           </div>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            <a href="#sign-info" className="btn btn-ghost" style={{ padding: '11px 18px', fontSize: 14 }}>
+          <div className="nav-ctas" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <a href="#sign-info" className="btn btn-ghost nav-cta-secondary" style={{ padding: '11px 18px', fontSize: 14 }}>
               Request info
             </a>
-            <a href="#sign-pledge" className="btn" style={{ padding: '11px 22px', fontSize: 14 }}>
-              Pledge your school
+            <a href="#sign-pledge" className="btn nav-cta-primary" style={{ padding: '11px 22px', fontSize: 14 }}>
+              <span className="full-label">Pledge your school</span>
+              <span className="short-label">Pledge</span>
             </a>
           </div>
         </div>
@@ -471,14 +533,14 @@ function Hero() {
               running when the LMS goes <Glitch>dark</Glitch>.
             </p>
 
-            <div style={{ display: 'flex', gap: 14, marginTop: 36, flexWrap: 'wrap', alignItems: 'center' }}>
+            <div className="hero-ctas" style={{ display: 'flex', gap: 14, marginTop: 36, flexWrap: 'wrap', alignItems: 'center' }}>
               <a href="#sign-pledge" className="btn btn-coral">
                 Pledge your institution →
               </a>
               <a href="#sign-info" className="btn btn-on-dark">
                 Administrator briefing →
               </a>
-              <a href="#how" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, fontWeight: 600, textDecoration: 'none', marginLeft: 6, borderBottom: '1px solid rgba(255,255,255,0.3)', paddingBottom: 2 }}>
+              <a href="#how" className="hero-tertiary" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, fontWeight: 600, textDecoration: 'none', marginLeft: 6, borderBottom: '1px solid rgba(255,255,255,0.3)', paddingBottom: 2 }}>
                 See how it works
               </a>
             </div>
@@ -502,7 +564,7 @@ function Pill({ label, sub }) {
 
 function HeroComposition() {
   return (
-    <div style={{ position: 'relative', minHeight: 540 }}>
+    <div className="hero-comp" style={{ position: 'relative', minHeight: 540 }}>
       <div style={{
         position: 'absolute', top: 30, right: -20, width: 380, height: 380,
         background: 'var(--coral)', borderRadius: '50%', opacity: 0.95,
@@ -1447,7 +1509,7 @@ function PledgeSection() {
                     <Field label="Institution" required>
                       <input value={info.inst} onChange={e => setInfo({ ...info, inst: e.target.value })} placeholder="University of —" required />
                     </Field>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <div className="form-pair" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                       <Field label="Name" required>
                         <input value={info.name} onChange={e => setInfo({ ...info, name: e.target.value })} placeholder="First Last" required />
                       </Field>
