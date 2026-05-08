@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>GradeVault — End-to-end encrypted academic records</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 140'><path d='M 32 56 V 40 a 28 28 0 0 1 56 0 V 56 H 72 V 40 a 12 12 0 0 0 -24 0 V 56 Z' fill='%230a1d3f'/><rect x='12' y='56' width='96' height='78' rx='14' fill='%230a1d3f'/><circle cx='60' cy='90' r='14' fill='%23e23f3a'/></svg>">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -100,10 +101,7 @@
     text-decoration: none;
   }
   nav.top .brand .mark {
-    width: 30px; height: 30px;
-    border-radius: 8px;
-    background: var(--ink); color: var(--paper);
-    display: flex; align-items: center; justify-content: center;
+    display: inline-flex; align-items: center; justify-content: center;
   }
   nav.top .brand .dot {
     width: 8px; height: 8px; border-radius: 50%;
@@ -307,9 +305,14 @@ const Glyph = {
     </svg>
   ),
   Mark: () => (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.4">
-      <rect x="2" y="2" width="18" height="18" />
-      <path d="M7 11 L10 14 L15 8" />
+    <svg width="22" height="26" viewBox="0 0 120 140" fill="none" aria-label="GradeVault padlock">
+      <path d="M 36 56 V 42 a 24 24 0 0 1 48 0 V 56 H 70 V 42 a 10 10 0 0 0 -20 0 V 56 Z" fill="#0a1d3f" />
+      <rect x="18" y="56" width="84" height="74" rx="14" fill="#0a1d3f" />
+      <circle cx="60" cy="93" r="19" fill="#ffffff" />
+      <circle cx="60" cy="93" r="11" fill="#0a1d3f" />
+      <rect x="60" y="86" width="22" height="14" fill="#0a1d3f" />
+      <rect x="60" y="91" width="14" height="5" fill="#e23f3a" />
+      <rect x="69" y="91" width="5" height="9" fill="#ffffff" />
     </svg>
   ),
 };
